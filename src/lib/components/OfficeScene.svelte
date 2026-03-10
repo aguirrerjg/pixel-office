@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { TEAMS, milesStatus, pmoStatus } from '$lib/stores';
+	import { TEAMS, DELEGATION_MAP, milesStatus, pmoStatus } from '$lib/stores';
 	import type { AgentState, TeamStatus } from '$lib/types';
 	import PixelCharacter from './PixelCharacter.svelte';
 
@@ -29,6 +29,44 @@
 		agentCount <= 4 ? { start: 18, range: 64 } :
 		{ start: 12, range: 76 }
 	);
+
+	// Agent position map (id → left %)
+	const agentPositions = $derived.by(() => {
+		const map: Record<string, number> = {};
+		if (team) {
+			team.agents.forEach((agent, idx) => {
+				map[agent.id] = agentCount === 1 ? 50 :
+					(spreadPct.start + idx * (spreadPct.range / (agentCount - 1)));
+			});
+		}
+		return map;
+	});
+
+	// Detect active delegations by parsing "Esperando a {label}" activity
+	const delegations = $derived.by(() => {
+		const result: { from: string; to: string; fromPct: number; toPct: number; color: string }[] = [];
+		const map = DELEGATION_MAP[teamKey];
+		if (!map || !team) return result;
+
+		for (const [agentId, status] of Object.entries(teamStatus)) {
+			const activity = status?.activity || '';
+			const match = activity.match(/^Esperando a (\w+)/);
+			if (match) {
+				const targetId = map[match[1]];
+				if (targetId && agentPositions[agentId] !== undefined && agentPositions[targetId] !== undefined) {
+					const targetAgent = team.agents.find(a => a.id === targetId);
+					result.push({
+						from: agentId,
+						to: targetId,
+						fromPct: agentPositions[agentId],
+						toPct: agentPositions[targetId],
+						color: targetAgent?.color ?? teamColor,
+					});
+				}
+			}
+		}
+		return result;
+	});
 
 	function getAgentState(agentId: string): AgentState {
 		const status = teamStatus[agentId];
@@ -246,6 +284,24 @@
 				<div class="mug-steam s2"></div>
 			</div>
 		</div>
+
+		<!-- PAPER TOSS: delegation animation -->
+		{#each delegations as deleg (deleg.from + deleg.to)}
+			<div
+				class="paper-toss"
+				style="--from:{deleg.fromPct}%;--to:{deleg.toPct}%;--mid:{(deleg.fromPct + deleg.toPct) / 2}%"
+			>
+				<div class="paper p1" style="--paper-accent:{deleg.color}">
+					<div class="paper-fold"></div>
+				</div>
+				<div class="paper p2" style="--paper-accent:{deleg.color}">
+					<div class="paper-fold"></div>
+				</div>
+				<div class="paper p3" style="--paper-accent:{deleg.color}">
+					<div class="paper-fold"></div>
+				</div>
+			</div>
+		{/each}
 
 		<!-- SERVER RACKS (bottom) -->
 		<div class="server-area">
@@ -1080,4 +1136,84 @@
 	}
 	.workstation-wrap.working .work-pulse { animation: pulseRing 2s ease-out infinite; }
 	@keyframes pulseRing { 0% { opacity: 0.5; transform: translateX(-50%) scale(0.6); } 100% { opacity: 0; transform: translateX(-50%) scale(2); } }
+
+	/* ═══ PAPER TOSS (delegation animation) ═══ */
+	.paper-toss {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+		z-index: 15;
+	}
+	.paper {
+		position: absolute;
+		bottom: 52%;
+		left: var(--from);
+		width: 10px;
+		height: 13px;
+		background: linear-gradient(180deg, #f8f4ec 0%, #ede6d6 100%);
+		border: 1px solid #c8c0b0;
+		border-radius: 1px;
+		opacity: 0;
+		animation: flyPaper 1.6s ease-in-out infinite;
+		transform-origin: center;
+		box-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+	}
+	.paper.p2 { animation-delay: 0.35s; }
+	.paper.p3 { animation-delay: 0.7s; }
+
+	/* Text lines on paper */
+	.paper::before {
+		content: '';
+		position: absolute;
+		top: 3px;
+		left: 2px;
+		right: 2px;
+		height: 6px;
+		background: repeating-linear-gradient(
+			180deg,
+			var(--paper-accent, #aaa) 0px,
+			var(--paper-accent, #aaa) 1px,
+			transparent 1px,
+			transparent 3px
+		);
+		opacity: 0.35;
+		border-radius: 0.5px;
+	}
+	/* Folded corner */
+	.paper-fold {
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 4px;
+		height: 4px;
+		background: #ddd6c6;
+		clip-path: polygon(100% 0, 0 100%, 100% 100%);
+	}
+
+	@keyframes flyPaper {
+		0% {
+			left: var(--from);
+			transform: translateX(-50%) translateY(0) rotate(-10deg) scale(0.7);
+			opacity: 0;
+		}
+		12% {
+			opacity: 1;
+		}
+		50% {
+			left: var(--mid);
+			transform: translateX(-50%) translateY(-85px) rotate(200deg) scale(1);
+			opacity: 1;
+		}
+		88% {
+			opacity: 0.6;
+		}
+		100% {
+			left: var(--to);
+			transform: translateX(-50%) translateY(0) rotate(380deg) scale(0.7);
+			opacity: 0;
+		}
+	}
 </style>
