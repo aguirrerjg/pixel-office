@@ -26,10 +26,10 @@
 	});
 
 	function getRowStyle(rowIdx: number, totalRows: number) {
-		if (totalRows === 1) return { bottom: 32, scale: 1.45, spread: { start: 22, range: 56 }, paperTop: 36 };
+		if (totalRows === 1) return { bottom: 28, scale: 1.45, spread: { start: 22, range: 56 }, paperTop: 36 };
 		// 2 rows: back smaller/higher, front bigger/lower
-		if (rowIdx === 0) return { bottom: 50, scale: 1.0, spread: { start: 22, range: 56 }, paperTop: 26 };
-		return { bottom: 22, scale: 1.3, spread: { start: 22, range: 56 }, paperTop: 54 };
+		if (rowIdx === 0) return { bottom: 44, scale: 1.0, spread: { start: 22, range: 56 }, paperTop: 30 };
+		return { bottom: 14, scale: 1.3, spread: { start: 22, range: 56 }, paperTop: 54 };
 	}
 
 	// Agent position map (id → left %)
@@ -372,7 +372,7 @@
 		top: 0;
 		left: 0;
 		right: 0;
-		height: 68%;
+		height: 58%;
 		background: linear-gradient(180deg, #c4a878 0%, #b89a6a 50%, #a88d5c 100%);
 		border-bottom: 4px solid #8a7550;
 		z-index: 0;
@@ -680,7 +680,7 @@
 		bottom: 0;
 		left: 0;
 		right: 0;
-		height: 32%;
+		height: 42%;
 		background: linear-gradient(180deg, #c4a46e 0%, #b89860 8%, #c8a870 30%, #d0b078 60%, #c4a468 100%);
 		z-index: 0;
 	}
@@ -842,7 +842,7 @@
 	/* ═══ PLANTS (tall trees) ═══ */
 	.plant {
 		position: absolute;
-		bottom: 18%;
+		bottom: 10%;
 		z-index: 7;
 	}
 	.plant.left { left: 1%; }
