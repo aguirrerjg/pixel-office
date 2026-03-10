@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Office — Control Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #050810;
+            --bg-deep: #0a0f1e;
+            --bg-panel: #0f1629;
+            --bg-card: #141c33;
+            --border: rgba(56, 97, 251, 0.12);
+            --border-bright: rgba(56, 97, 251, 0.25);
+            --text: #e4e8f7;
+            --text-dim: #6b7394;
+            --text-muted: #3d4566;
+            --cyan: #00e5ff;
+            --amber: #ffb300;
+            --green: #00e676;
+            --red: #ff1744;
+            --violet: #b388ff;
+            --blue: #448aff;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: var(--bg-void);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ═══ HEADER ═══ */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 24px; height: 48px;
+            background: linear-gradient(180deg, rgba(15,22,41,0.98), rgba(10,15,30,0.95));
+            border-bottom: 1px solid var(--border); flex-shrink: 0; position: relative;
+        }
+        .header::after {
+            content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+            background:linear-gradient(90deg,transparent,var(--cyan) 20%,var(--amber) 80%,transparent);opacity:0.3;
+        }
+        .header-brand { display:flex;align-items:center;gap:12px; }
+        .header-brand h1 {
+            font-family:'Chakra Petch',sans-serif;font-size:16px;font-weight:700;letter-spacing:3px;
+            background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+        }
+        .header-brand .tag { font-family:'Fira Code',monospace;font-size:9px;color:var(--text-dim);background:var(--bg-card);padding:2px 8px;border-radius:3px;border:1px solid var(--border);letter-spacing:1px; }
+        .header-right { display:flex;align-items:center;gap:20px; }
+        .header-bots { display:flex;gap:14px; }
+        .bot-ind { display:flex;align-items:center;gap:6px;font-family:'Fira Code',monospace;font-size:11px;font-weight:500;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg-card);transition:all 0.4s; }
+        .bot-ind.on { border-color:rgba(0,230,118,0.25);background:rgba(0,230,118,0.06); }
+        .bot-ind.off { border-color:rgba(255,23,68,0.3);background:rgba(255,23,68,0.08);animation:alertP 2s ease-in-out infinite; }
+        .b-dot { width:7px;height:7px;border-radius:50%;flex-shrink:0; }
+        .b-dot.on { background:var(--green);box-shadow:0 0 8px var(--green);animation:dotP 3s ease-in-out infinite; }
+        .b-dot.off { background:var(--red);box-shadow:0 0 8px var(--red);animation:dotP 1s ease-in-out infinite; }
+        .b-up { font-size:9px;color:var(--text-dim);margin-left:4px; }
+        .clock { font-family:'Fira Code',monospace;font-size:13px;color:var(--text-dim);letter-spacing:1px; }
+        @keyframes dotP{0%,100%{opacity:1}50%{opacity:0.4}}
+        @keyframes alertP{0%,100%{opacity:1}50%{opacity:0.7}}
+
+        /* ═══ MAIN ═══ */
+        .main { flex:1;display:flex;flex-direction:column;overflow:hidden;
+            background:radial-gradient(ellipse 80% 50% at 30% 20%,rgba(0,229,255,0.02),transparent),
+                        radial-gradient(ellipse 60% 40% at 70% 80%,rgba(255,179,0,0.015),transparent),var(--bg-void);
+        }
+        .offices-row { flex:1;display:flex;gap:1px;background:var(--border);overflow:hidden;min-height:0; }
+
+        /* ═══ OFFICE PANEL ═══ */
+        .office-panel { flex:1;display:flex;flex-direction:column;background:var(--bg-deep);min-width:0;position:relative;overflow:hidden;min-height:280px; }
+        .office-hdr {
+            display:flex;justify-content:space-between;align-items:center;
+            padding:8px 16px;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0;
+        }
+        .office-title-grp { display:flex;align-items:center;gap:10px; }
+        .office-name { font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase; }
+        .office-plat { font-family:'Fira Code',monospace;font-size:9px;color:var(--text-dim);padding:2px 6px;border-radius:3px;border:1px solid var(--border); }
+        .office-stats { display:flex;gap:14px;font-family:'Fira Code',monospace;font-size:10px; }
+        .o-stat { display:flex;align-items:center;gap:5px;color:var(--text-dim); }
+        .s-pip { width:5px;height:5px;border-radius:50%; }
+
+        /* ═══ SHARED OFFICE SCENE ═══ */
+        .ws-area {
+            flex:1;position:relative;overflow:hidden;
+            min-height:220px;
+            background:
+                linear-gradient(180deg, #0d1117 0%, #131920 40%, #161b22 100%),
+                radial-gradient(circle at 20% 80%, rgba(0,229,255,0.02) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(179,136,255,0.015) 0%, transparent 50%);
+        }
+        /* Shared floor across entire office */
+        .ws-area::before {
+            content:'';position:absolute;bottom:0;left:0;right:0;height:50px;
+            background:linear-gradient(180deg, #1a1f29 0%, #13171e 100%);
+            border-top:1px solid rgba(100,120,180,0.06);
+            z-index:0;
+        }
+        /* Ambient ceiling light */
+        .ws-area::after {
+            content:'';position:absolute;top:0;left:0;right:0;height:3px;
+            background:linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.02) 20%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.02) 80%, transparent 95%);
+            z-index:1;
+        }
+
+        .workstation {
+            position:absolute;bottom:50px;
+            width:var(--ws-width,120px);
+            display:flex;flex-direction:column;align-items:center;
+            transition:all 0.5s ease;
+            z-index:2;
+        }
+        .workstation::before {
+            content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);
+            width:80px;height:20px;border-radius:50%;
+            background:var(--agent-color);opacity:0;filter:blur(15px);
+            transition:opacity 0.5s;z-index:-1;
+        }
+        .workstation.working {
+            animation:none;
+        }
+        .workstation.working::before { opacity:0.15; }
+        .workstation.thinking::before { opacity:0.1; background:var(--violet); }
+        @keyframes cardPulse {
+            0%,100%{box-shadow:none}50%{box-shadow:none}
+        }
+
+        /* ── Activating (stand up before working) ── */
+        .workstation.activating .character {
+            animation:standUp 1.2s ease-out forwards;
+        }
+        .workstation.activating .char-head {
+            animation:standUpHead 1.2s ease-out forwards !important;
+        }
+        .workstation.activating .char-arm-l {
+            animation:standUpArmL 1.2s ease-out forwards !important;
+        }
+        .workstation.activating .char-arm-r {
+            animation:standUpArmR 1.2s ease-out forwards !important;
+        }
+        @keyframes standUp {
+            0%{transform:translateX(-50%) translateY(0)}
+            30%{transform:translateX(-50%) translateY(-18px)}
+            50%{transform:translateX(-50%) translateY(-20px)}
+            75%{transform:translateX(-50%) translateY(-10px)}
+            100%{transform:translateX(-50%) translateY(0)}
+        }
+        @keyframes standUpHead {
+            0%{transform:translateX(-50%) translateY(0) rotate(0)}
+            25%{transform:translateX(-50%) translateY(-18px) rotate(-5deg)}
+            50%{transform:translateX(-50%) translateY(-20px) rotate(0)}
+            75%{transform:translateX(-50%) translateY(-10px) rotate(3deg)}
+            100%{transform:translateX(-50%) translateY(0) rotate(0)}
+        }
+        @keyframes standUpArmL {
+            0%{transform:rotate(12deg)}
+            25%{transform:rotate(-20deg) translateY(-10px)}
+            50%{transform:rotate(-15deg) translateY(-8px)}
+            100%{transform:rotate(12deg)}
+        }
+        @keyframes standUpArmR {
+            0%{transform:rotate(-12deg)}
+            25%{transform:rotate(20deg) translateY(-10px)}
+            50%{transform:rotate(15deg) translateY(-8px)}
+            100%{transform:rotate(-12deg)}
+        }
+        .workstation.activating .screen-glow {
+            background:linear-gradient(180deg, color-mix(in srgb,var(--agent-color) 40%,transparent) 0%, color-mix(in srgb,var(--agent-color) 15%,transparent) 100%);
+            animation:screenFlicker 0.8s ease-in-out infinite;
+        }
+        .workstation.activating::before { opacity:0.2; }
+
+        /* ── Flying papers (delegation) ── */
+        .flying-paper {
+            position:fixed;z-index:9999;pointer-events:none;
+            width:12px;height:15px;
+            background:#e8e8e8;
+            border:1px solid rgba(255,255,255,0.3);
+            border-radius:1px;
+            box-shadow:0 1px 4px rgba(0,0,0,0.3);
+            opacity:0.9;
+        }
+        .flying-paper::before {
+            content:'';position:absolute;top:3px;left:2px;right:2px;
+            height:1px;background:rgba(0,0,0,0.15);
+            box-shadow:0 3px 0 rgba(0,0,0,0.12), 0 6px 0 rgba(0,0,0,0.08);
+        }
+        .flying-paper.arriving {
+            transition:opacity 0.2s, transform 0.2s;
+            opacity:0;transform:scale(0.3);
+        }
+
+        /* ── Scene container (per agent within shared office) ── */
+        .scene {
+            width:100%;height:140px;position:relative;overflow:visible;
+        }
+
+        /* ── Floor (shared via ws-area::before, individual hidden) ── */
+        .floor { display:none; }
+
+        /* ── Desk ── */
+        .desk {
+            position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+            width:90px;height:10px;
+            background:linear-gradient(180deg, #2d3a5c 0%, #232f4f 100%);
+            border-radius:3px 3px 0 0;
+            border:1px solid rgba(100,120,180,0.15);border-bottom:none;
+        }
+        .desk-leg-l, .desk-leg-r {
+            position:absolute;bottom:14px;width:4px;height:18px;
+            background:linear-gradient(180deg, #2d3a5c, #1e2845);
+            border-radius:0 0 2px 2px;
+        }
+        .desk-leg-l { left:calc(50% - 38px); }
+        .desk-leg-r { left:calc(50% + 34px); }
+
+        /* ── Chair ── */
+        .chair {
+            position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:1;
+        }
+        .chair-seat {
+            width:40px;height:6px;background:#1e2845;border-radius:3px;
+            border:1px solid rgba(100,120,180,0.1);
+        }
+        .chair-back {
+            position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+            width:36px;height:30px;
+            background:linear-gradient(180deg, #252e4a 0%, #1e2845 100%);
+            border-radius:6px 6px 2px 2px;
+            border:1px solid rgba(100,120,180,0.1);
+        }
+
+        /* ── Laptop ── */
+        .laptop {
+            position:absolute;bottom:38px;left:50%;transform:translateX(-50%);z-index:3;
+        }
+        .laptop-base {
+            width:36px;height:4px;background:#333e5c;border-radius:1px;
+            border:1px solid rgba(120,140,200,0.15);
+        }
+        .laptop-screen {
+            position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
+            width:30px;height:22px;
+            background:#0a0f1e;border:1.5px solid #3a4568;border-radius:2px 2px 0 0;
+            overflow:hidden;
+        }
+        .screen-glow {
+            position:absolute;inset:2px;
+            background:linear-gradient(180deg, rgba(50,80,140,0.3) 0%, rgba(30,50,100,0.15) 100%);
+            border-radius:1px;
+        }
+        .workstation.working .screen-glow {
+            background:linear-gradient(180deg, color-mix(in srgb,var(--agent-color) 60%,transparent) 0%, color-mix(in srgb,var(--agent-color) 25%,transparent) 100%);
+            animation:screenFlicker 1.5s ease-in-out infinite;
+        }
+        .workstation.thinking .screen-glow {
+            background:linear-gradient(180deg, rgba(179,136,255,0.4) 0%, rgba(179,136,255,0.15) 100%);
+            animation:screenFlicker 2.5s ease-in-out infinite;
+        }
+        @keyframes screenFlicker {
+            0%,100%{opacity:0.6}50%{opacity:1}
+        }
+        /* Laptop glow effect on desk */
+        .workstation.working .laptop::after {
+            content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);
+            width:50px;height:12px;border-radius:50%;
+            background:var(--agent-color);opacity:0.15;filter:blur(6px);
+            animation:deskGlow 1.5s ease-in-out infinite;
+        }
+        .workstation.thinking .laptop::after {
+            content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);
+            width:50px;height:12px;border-radius:50%;
+            background:var(--violet);opacity:0.12;filter:blur(6px);
+            animation:deskGlow 2.5s ease-in-out infinite;
+        }
+        @keyframes deskGlow { 0%,100%{opacity:0.1}50%{opacity:0.25} }
+        /* Screen text lines */
+        .screen-lines {
+            position:absolute;inset:3px;display:flex;flex-direction:column;gap:2px;padding:1px;
+        }
+        .screen-line {
+            height:1.5px;border-radius:1px;opacity:0.3;
+        }
+        .workstation.working .screen-line { animation:typeLine 1s ease-in-out infinite;opacity:0.7; }
+        .workstation.thinking .screen-line { animation:typeLine 3s ease-in-out infinite;opacity:0.4; }
+        @keyframes typeLine { 0%{width:0}30%{width:100%}60%{width:40%}100%{width:80%} }
+
+        /* ── Character Body ── */
+        .character {
+            position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:2;
+            transition:all 0.6s ease;
+        }
+        /* Idle: seated */
+        .workstation.idle .character,
+        .workstation .character { --char-y:0px; }
+        /* Working: leaning forward */
+        .workstation.working .character { --char-y:-4px; }
+        /* Thinking: stands up tall */
+        .workstation.thinking .character { --char-y:-20px; }
+
+        /* Torso */
+        .char-torso {
+            position:relative;width:30px;height:28px;
+            background:var(--jacket-color);
+            border-radius:8px 8px 2px 2px;
+            transform:translateY(var(--char-y,0));
+            transition:transform 0.6s ease;
+        }
+        .char-torso::before {
+            content:'';position:absolute;top:3px;left:50%;transform:translateX(-50%);
+            width:12px;height:18px;
+            background:var(--shirt-color);border-radius:3px 3px 0 0;clip-path:polygon(20% 0,80% 0,100% 100%,0 100%);
+        }
+
+        /* Arms */
+        .char-arm-l, .char-arm-r {
+            position:absolute;top:4px;width:8px;height:22px;
+            background:var(--jacket-color);border-radius:4px;
+            transform-origin:top center;transition:all 0.4s ease;z-index:4;
+        }
+        .char-arm-l { left:-6px;transform:translateY(var(--char-y,0)) rotate(12deg); }
+        .char-arm-r { right:-6px;transform:translateY(var(--char-y,0)) rotate(-12deg); }
+        /* Hand circles */
+        .char-arm-l::after, .char-arm-r::after {
+            content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);
+            width:6px;height:6px;border-radius:50%;background:var(--skin-color);
+        }
+
+        /* Working: vigorous typing animation */
+        .workstation.working .char-arm-l {
+            animation:typeL 0.35s ease-in-out infinite alternate;
+        }
+        .workstation.working .char-arm-r {
+            animation:typeR 0.35s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes typeL {
+            0%{transform:translateY(var(--char-y,0)) rotate(20deg) translateY(0)}
+            100%{transform:translateY(var(--char-y,0)) rotate(0deg) translateY(-8px)}
+        }
+        @keyframes typeR {
+            0%{transform:translateY(var(--char-y,0)) rotate(-20deg) translateY(0)}
+            100%{transform:translateY(var(--char-y,0)) rotate(0deg) translateY(-8px)}
+        }
+        /* Working: head bobbing while typing */
+        .workstation.working .char-head {
+            animation:workBob 1.2s ease-in-out infinite;
+        }
+        @keyframes workBob {
+            0%,100%{transform:translateX(-50%) translateY(var(--char-y,0))}
+            50%{transform:translateX(-50%) translateY(calc(var(--char-y,0) - 3px))}
+        }
+
+        /* Thinking: one arm up to chin, other relaxed */
+        .workstation.thinking .char-arm-l {
+            transform:translateY(var(--char-y,0)) rotate(15deg);
+            animation:thinkSway 3s ease-in-out infinite;
+        }
+        .workstation.thinking .char-arm-r {
+            transform:translateY(var(--char-y,0)) rotate(-70deg) translateY(-14px);
+        }
+        @keyframes thinkSway {
+            0%,100%{transform:translateY(var(--char-y,0)) rotate(15deg)}
+            50%{transform:translateY(var(--char-y,0)) rotate(10deg)}
+        }
+
+        /* Neck */
+        .char-neck-part {
+            position:absolute;top:-6px;left:50%;transform:translateX(-50%) translateY(var(--char-y,0));
+            width:10px;height:8px;background:var(--skin-color);border-radius:2px;
+            transition:transform 0.6s ease;
+        }
+
+        /* Head */
+        .char-head {
+            position:absolute;top:-36px;left:50%;transform:translateX(-50%) translateY(var(--char-y,0));
+            width:26px;height:28px;background:var(--skin-color);
+            border-radius:50% 50% 45% 45%;
+            transition:transform 0.6s ease;z-index:5;
+        }
+
+        /* Idle breathing — visible bobbing */
+        .workstation.idle .char-torso { animation:breathe 3s ease-in-out infinite; }
+        .workstation.idle .char-head { animation:headBob 3s ease-in-out infinite; }
+        .workstation.idle .char-arm-l { animation:idleArmL 4s ease-in-out infinite; }
+        .workstation.idle .char-arm-r { animation:idleArmR 4s ease-in-out infinite; }
+        @keyframes breathe { 0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(-2px) scaleY(1.04)} }
+        @keyframes headBob { 0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)} }
+        @keyframes idleArmL { 0%,100%{transform:rotate(12deg)}50%{transform:rotate(8deg)} }
+        @keyframes idleArmR { 0%,100%{transform:rotate(-12deg)}50%{transform:rotate(-8deg)} }
+
+        /* Thinking head tilt */
+        .workstation.thinking .char-head {
+            animation:thinkTilt 3s ease-in-out infinite;
+        }
+        @keyframes thinkTilt {
+            0%,100%{transform:translateX(-50%) translateY(var(--char-y,0)) rotate(0)}
+            50%{transform:translateX(-50%) translateY(var(--char-y,0)) rotate(5deg)}
+        }
+
+        /* Eyes */
+        .char-eyes { position:absolute;top:13px;left:50%;transform:translateX(-50%);display:flex;gap:6px; }
+        .char-eye {
+            width:5px;height:5px;border-radius:50%;background:#1a1a2e;position:relative;
+        }
+        .char-eye::before { content:'';position:absolute;top:0.5px;left:1.5px;width:2px;height:2px;border-radius:50%;background:#fff;opacity:0.9; }
+        /* Blink */
+        .char-eye { animation:blink 5s ease-in-out infinite; }
+        .char-eye:last-child { animation-delay:0.05s; }
+        @keyframes blink {
+            0%,44%,50%,100%{transform:scaleY(1)}46%,48%{transform:scaleY(0.1)}
+        }
+        /* Working: eyes focused (no blink) */
+        .workstation.working .char-eye { animation:none; }
+
+        /* Mouth */
+        .char-mouth-part {
+            position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
+            width:5px;height:1.5px;background:rgba(0,0,0,0.12);border-radius:1px;
+            transition:all 0.3s;
+        }
+        .workstation.working .char-mouth-part { width:4px;height:2px;border-radius:0 0 2px 2px;background:rgba(0,0,0,0.08); }
+        .workstation.thinking .char-mouth-part { width:3px;height:3px;border-radius:50%;background:rgba(0,0,0,0.06); }
+
+        /* Hair */
+        .char-hair {
+            position:absolute;top:-2px;left:-2px;right:-2px;height:16px;
+            background:var(--hair-color);border-radius:50% 50% 30% 30%;z-index:6;
+        }
+        .hair-messy-cap .char-hair { border-radius:40% 40% 20% 20%; }
+        .hair-messy-cap .char-hair::before {
+            content:'';position:absolute;top:-3px;left:-1px;right:-1px;height:13px;
+            background:var(--cap-color,#4a5568);border-radius:50% 50% 15% 15%;
+        }
+        .hair-messy-cap .char-hair::after {
+            content:'';position:absolute;bottom:-2px;left:-3px;width:7px;height:9px;
+            background:var(--hair-color);border-radius:2px;z-index:1;
+        }
+        .hair-messy-long .char-hair { height:20px;border-radius:45% 45% 10% 10%; }
+        .hair-messy-long .char-hair::before {
+            content:'';position:absolute;top:6px;left:-3px;width:10px;height:16px;
+            background:var(--hair-color);border-radius:3px;
+        }
+        .hair-messy-long .char-hair::after {
+            content:'';position:absolute;top:6px;right:-3px;width:8px;height:14px;
+            background:var(--hair-color);border-radius:3px;
+        }
+        .hair-neat-side .char-hair { border-radius:50% 50% 35% 35%; }
+        .hair-neat-side .char-hair::before {
+            content:'';position:absolute;top:4px;left:-3px;width:6px;height:10px;
+            background:var(--hair-color);border-radius:2px;
+        }
+        .hair-short-textured .char-hair { height:13px;border-radius:50% 50% 40% 40%; }
+        .hair-wavy-beret .char-hair { height:18px;border-radius:45% 45% 20% 20%; }
+        .hair-wavy-beret .char-hair::before {
+            content:'';position:absolute;top:-4px;left:2px;right:-3px;height:14px;
+            background:var(--beret-color,#b71c1c);border-radius:60% 60% 20% 20%;
+        }
+        .hair-wavy-beret .char-hair::after {
+            content:'';position:absolute;top:6px;left:-3px;width:8px;height:13px;
+            background:var(--hair-color);border-radius:3px;
+        }
+
+        /* Accessories */
+        .acc-glasses .char-head::after {
+            content:'';position:absolute;top:11px;left:50%;transform:translateX(-50%);
+            width:22px;height:7px;border:1px solid rgba(150,160,180,0.5);border-radius:3px;
+            background:rgba(180,200,255,0.05);z-index:7;
+        }
+        .acc-headphones .char-head::after {
+            content:'';position:absolute;top:-2px;left:-4px;right:-4px;height:20px;
+            border:2px solid #444;border-bottom:none;border-radius:50% 50% 0 0;z-index:7;
+        }
+        .acc-dogtags .char-torso::after {
+            content:'';position:absolute;top:1px;left:50%;transform:translateX(-50%);
+            width:5px;height:7px;background:#9e9e9e;border-radius:1.5px;
+            box-shadow:0 0 0 0.5px #bdbdbd;z-index:7;
+        }
+
+        /* ── Thinking bubble ── */
+        .think-bubble {
+            position:absolute;top:8px;right:12px;z-index:10;
+            opacity:0;transition:opacity 0.5s;pointer-events:none;
+        }
+        .workstation.thinking .think-bubble { opacity:1; }
+        .think-dot {
+            width:5px;height:5px;border-radius:50%;background:rgba(179,136,255,0.5);
+            position:absolute;
+        }
+        .think-dot:nth-child(2) { bottom:0;right:4px;width:5px;height:5px;animation:dotFade 2s ease-in-out infinite; }
+        .think-dot:nth-child(3) { bottom:10px;right:10px;width:7px;height:7px;animation:dotFade 2s ease-in-out 0.3s infinite; }
+        .think-cloud {
+            width:36px;height:24px;background:rgba(179,136,255,0.2);
+            border:1.5px solid rgba(179,136,255,0.35);border-radius:12px;
+            display:flex;align-items:center;justify-content:center;
+            font-size:14px;
+            animation:thinkFloat 2.5s ease-in-out infinite;
+            box-shadow:0 0 12px rgba(179,136,255,0.15);
+        }
+        @keyframes thinkFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+        @keyframes dotFade{0%,100%{opacity:0.3}50%{opacity:0.8}}
+
+        /* ── Working pulse ── */
+        .work-pulse {
+            position:absolute;bottom:38px;left:50%;transform:translateX(-50%);
+            width:50px;height:50px;border-radius:50%;
+            border:1px solid var(--agent-color);opacity:0;z-index:0;pointer-events:none;
+        }
+        .workstation.working .work-pulse { animation:pulseRing 2s ease-out infinite; }
+        @keyframes pulseRing { 0%{opacity:0.5;transform:translateX(-50%) scale(0.6)}100%{opacity:0;transform:translateX(-50%) scale(2)} }
+
+        /* ── Agent Info (floating label below character) ── */
+        .ws-info {
+            display:flex;flex-direction:column;align-items:center;gap:1px;
+            padding:2px 6px 4px;
+            position:absolute;bottom:-55px;left:50%;transform:translateX(-50%);
+            white-space:nowrap;
+        }
+        .ws-name { font-family:'Chakra Petch',sans-serif;font-size:10px;font-weight:600;color:var(--agent-color);letter-spacing:0.5px; }
+        .ws-role { font-family:'Fira Code',monospace;font-size:7px;color:var(--text-muted);display:none; }
+        .ws-status {
+            font-family:'Fira Code',monospace;font-size:7px;font-weight:600;
+            padding:1px 4px;border-radius:3px;letter-spacing:0.5px;text-transform:uppercase;
+        }
+        .ws-status.idle { background:rgba(61,69,102,0.3);color:var(--text-dim); }
+        .ws-status.working { background:rgba(0,229,255,0.12);color:var(--cyan); }
+        .ws-status.thinking { background:rgba(179,136,255,0.12);color:var(--violet); }
+        .ws-activity {
+            font-family:'Fira Code',monospace;font-size:6px;color:var(--text-dim);
+            max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+            text-align:center;min-height:8px;
+        }
+
+        /* ═══ BOTTOM PANEL ═══ */
+        .bottom-panel { height:180px;display:flex;gap:1px;background:var(--border);flex-shrink:0;border-top:1px solid var(--border-bright); }
+        .panel-section { flex:1;background:var(--bg-deep);display:flex;flex-direction:column;overflow:hidden; }
+        .panel-section.alerts-section { flex:0.8; }
+        .panel-section.chat-section { flex:0.9; }
+        .panel-hdr {
+            display:flex;justify-content:space-between;align-items:center;
+            padding:6px 14px;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0;
+        }
+        .panel-title { font-family:'Chakra Petch',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim); }
+        .panel-badge { font-family:'Fira Code',monospace;font-size:9px;padding:1px 6px;border-radius:3px;font-weight:600; }
+        .badge-count { background:rgba(255,23,68,0.12);color:var(--red); }
+        .badge-ok { background:rgba(0,230,118,0.12);color:var(--green); }
+        .panel-body { flex:1;overflow-y:auto;padding:4px 0; }
+
+        .feed-entry { display:flex;align-items:flex-start;gap:8px;padding:3px 14px;font-size:11px;line-height:1.4;transition:background 0.2s; }
+        .feed-entry:hover { background:rgba(255,255,255,0.02); }
+        .feed-entry.error { background:rgba(255,23,68,0.04); }
+        .feed-entry.warn { background:rgba(255,179,0,0.03); }
+        .feed-time { font-family:'Fira Code',monospace;font-size:10px;color:var(--text-muted);flex-shrink:0;min-width:52px; }
+        .feed-team { font-family:'Fira Code',monospace;font-size:8px;font-weight:600;padding:1px 4px;border-radius:2px;flex-shrink:0;letter-spacing:0.5px; }
+        .feed-team-miles { background:rgba(0,229,255,0.12);color:var(--cyan); }
+        .feed-team-pmo { background:rgba(255,179,0,0.12);color:var(--amber); }
+        .feed-level { font-family:'Fira Code',monospace;font-size:8px;padding:1px 3px;border-radius:2px;flex-shrink:0; }
+        .feed-level-error { background:rgba(255,23,68,0.12);color:var(--red); }
+        .feed-level-warn { background:rgba(255,179,0,0.12);color:var(--amber); }
+        .feed-text { color:var(--text);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+
+        .alert-entry { display:flex;align-items:flex-start;gap:8px;padding:6px 14px;border-bottom:1px solid rgba(255,23,68,0.06);font-size:11px; }
+        .alert-icon { font-size:14px;flex-shrink:0;margin-top:1px; }
+        .alert-content { flex:1;min-width:0; }
+        .alert-msg { color:var(--text);font-size:11px;line-height:1.4; }
+        .alert-meta { font-family:'Fira Code',monospace;font-size:9px;color:var(--text-dim);margin-top:2px; }
+        .alerts-empty { display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:12px;gap:4px; }
+        .alerts-empty-icon { font-size:24px;opacity:0.4; }
+
+        .chat-messages { flex:1;overflow-y:auto;padding:4px 10px; }
+        .chat-msg { font-size:11px;padding:5px 10px;margin-bottom:3px;border-radius:6px;line-height:1.4;max-width:90%; }
+        .chat-msg-user { background:rgba(0,229,255,0.06);border:1px solid rgba(0,229,255,0.12);margin-left:auto; }
+        .chat-msg-agent { background:var(--bg-card);border:1px solid var(--border); }
+        .chat-msg-label { font-family:'Fira Code',monospace;font-size:8px;color:var(--text-dim);margin-bottom:2px; }
+        .chat-msg-processing { color:var(--amber);font-style:italic;font-size:10px; }
+        .chat-input-row { display:flex;gap:4px;padding:6px 10px;border-top:1px solid var(--border);background:var(--bg-panel);flex-shrink:0; }
+        .chat-team-select { background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:'Fira Code',monospace;font-size:10px;padding:5px 8px;border-radius:4px;outline:none; }
+        .chat-input { flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:12px;padding:5px 10px;border-radius:4px;outline:none;font-family:'Outfit',sans-serif;transition:border-color 0.2s; }
+        .chat-input:focus { border-color:var(--cyan); }
+        .chat-send-btn { background:linear-gradient(135deg,var(--cyan),var(--blue));border:none;color:var(--bg-void);font-family:'Chakra Petch',sans-serif;font-size:11px;font-weight:700;padding:5px 14px;border-radius:4px;cursor:pointer;letter-spacing:1px;transition:opacity 0.2s; }
+        .chat-send-btn:hover { opacity:0.85; }
+        .chat-send-btn:disabled { opacity:0.3;cursor:not-allowed; }
+
+        ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:2px}
+
+        /* ═══ MICRO-ACTIONS (idle life) ═══ */
+
+        /* Look left */
+        .workstation.micro-look-left .char-eyes { transform:translateX(-50%) translateX(-2px); }
+        .workstation.micro-look-left .char-head { animation:lookLeft 2.5s ease-in-out forwards !important; }
+        @keyframes lookLeft { 0%,100%{transform:translateX(-50%) translateY(0) rotate(0)}20%,80%{transform:translateX(-50%) translateY(0) rotate(-4deg)} }
+
+        /* Look right */
+        .workstation.micro-look-right .char-eyes { transform:translateX(-50%) translateX(2px); }
+        .workstation.micro-look-right .char-head { animation:lookRight 2.5s ease-in-out forwards !important; }
+        @keyframes lookRight { 0%,100%{transform:translateX(-50%) translateY(0) rotate(0)}20%,80%{transform:translateX(-50%) translateY(0) rotate(4deg)} }
+
+        /* Stretch arms up */
+        .workstation.micro-stretch .char-arm-l { animation:stretchL 3s ease-in-out forwards !important; }
+        .workstation.micro-stretch .char-arm-r { animation:stretchR 3s ease-in-out forwards !important; }
+        .workstation.micro-stretch .char-torso { animation:stretchBody 3s ease-in-out forwards !important; }
+        @keyframes stretchL { 0%,100%{transform:rotate(12deg)}20%,60%{transform:rotate(-60deg) translateY(-12px)} }
+        @keyframes stretchR { 0%,100%{transform:rotate(-12deg)}20%,60%{transform:rotate(60deg) translateY(-12px)} }
+        @keyframes stretchBody { 0%,100%{transform:translateY(0) scaleY(1)}20%,60%{transform:translateY(-4px) scaleY(1.06)} }
+
+        /* Lean back in chair */
+        .workstation.micro-lean-back .character { animation:leanBack 3.5s ease-in-out forwards !important; }
+        .workstation.micro-lean-back .char-arm-l { animation:leanArmL 3.5s ease-in-out forwards !important; }
+        .workstation.micro-lean-back .char-arm-r { animation:leanArmR 3.5s ease-in-out forwards !important; }
+        @keyframes leanBack { 0%,100%{transform:translateX(-50%) translateY(0)}25%,75%{transform:translateX(-50%) translateY(4px)} }
+        @keyframes leanArmL { 0%,100%{transform:rotate(12deg)}25%,75%{transform:rotate(25deg)} }
+        @keyframes leanArmR { 0%,100%{transform:rotate(-12deg)}25%,75%{transform:rotate(-25deg)} }
+
+
+
+        /* Check phone (one hand up, look down) */
+        .workstation.micro-phone .char-arm-l { animation:phoneArm 3s ease-in-out forwards !important; }
+        .workstation.micro-phone .char-head { animation:phoneLook 3s ease-in-out forwards !important; }
+        @keyframes phoneArm { 0%,100%{transform:rotate(12deg)}20%,80%{transform:rotate(-30deg) translateY(-6px)} }
+        @keyframes phoneLook { 0%,100%{transform:translateX(-50%) rotate(0)}20%,80%{transform:translateX(-50%) rotate(6deg) translateY(2px)} }
+
+        /* Nod off (sleepy head drop) */
+        .workstation.micro-nod-off .char-head { animation:nodOff 4s ease-in-out forwards !important; }
+        .workstation.micro-nod-off .char-eye { animation:sleepyEyes 4s ease-in-out forwards !important; }
+        @keyframes nodOff { 0%,100%{transform:translateX(-50%) translateY(0) rotate(0)}40%,60%{transform:translateX(-50%) translateY(4px) rotate(8deg)}50%{transform:translateX(-50%) translateY(6px) rotate(10deg)} }
+        @keyframes sleepyEyes { 0%,30%,100%{transform:scaleY(1)}40%,60%{transform:scaleY(0.2)} }
+
+        /* Wave (friendly gesture) */
+        .workstation.micro-wave .char-arm-r { animation:waveArm 2s ease-in-out forwards !important; }
+        @keyframes waveArm { 0%,100%{transform:rotate(-12deg)}15%,85%{transform:rotate(-70deg) translateY(-14px)}30%{transform:rotate(-55deg) translateY(-12px)}45%{transform:rotate(-70deg) translateY(-14px)}60%{transform:rotate(-55deg) translateY(-12px)}75%{transform:rotate(-70deg) translateY(-14px)} }
+
+
+
+        /* Fall asleep on desk */
+        .workstation.micro-sleep .character { animation:sleepSlump 10s ease-in-out forwards !important; }
+        .workstation.micro-sleep .char-head { animation:sleepHead 10s ease-in-out forwards !important; }
+        .workstation.micro-sleep .char-eye { animation:sleepShut 10s ease-in-out forwards !important; }
+        .workstation.micro-sleep .char-arm-l { animation:sleepArmL 10s ease-in-out forwards !important; }
+        .workstation.micro-sleep .char-arm-r { animation:sleepArmR 10s ease-in-out forwards !important; }
+        @keyframes sleepSlump {
+            0%,100%{transform:translateX(-50%) translateY(0)}
+            12%,85%{transform:translateX(-50%) translateY(8px) translateX(12px)}
+            92%{transform:translateX(-50%) translateY(4px) translateX(6px)}
+        }
+        @keyframes sleepHead {
+            0%,100%{transform:translateX(-50%) rotate(0)}
+            10%{transform:translateX(-50%) rotate(15deg) translateY(10px) translateX(8px)}
+            12%,82%{transform:translateX(-50%) rotate(25deg) translateY(16px) translateX(12px)}
+            88%{transform:translateX(-50%) rotate(20deg) translateY(14px) translateX(10px)}
+            94%{transform:translateX(-50%) rotate(10deg) translateY(6px) translateX(4px)}
+        }
+        @keyframes sleepShut {
+            0%,94%,100%{transform:scaleY(1)}
+            10%,88%{transform:scaleY(0.1)}
+        }
+        @keyframes sleepArmL {
+            0%,100%{transform:rotate(12deg)}
+            12%,85%{transform:rotate(30deg) translateY(6px)}
+        }
+        @keyframes sleepArmR {
+            0%,100%{transform:rotate(-12deg)}
+            12%,85%{transform:rotate(-5deg) translateY(6px)}
+        }
+
+        /* Noise */
+        body::before {
+            content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0.3;
+            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-brand"><h1>Pixel Office</h1><span class="tag">CONTROL CENTER</span></div>
+    <div class="header-right">
+        <div class="header-bots">
+            <div class="bot-ind" id="bot-miles"><span class="b-dot on" id="dot-miles"></span><span style="color:var(--cyan)">MILES</span><span class="b-up" id="uptime-miles">--</span></div>
+            <div class="bot-ind" id="bot-pmo"><span class="b-dot on" id="dot-pmo"></span><span style="color:var(--amber)">PMO</span><span class="b-up" id="uptime-pmo">--</span></div>
+        </div>
+        <span class="clock" id="clock">--:--:--</span>
+    </div>
+</div>
+
+<div class="main">
+    <div class="offices-row">
+        <div class="office-panel">
+            <div class="office-hdr">
+                <div class="office-title-grp">
+                    <span class="office-name" style="color:var(--cyan)">Miles Team</span>
+                    <span class="office-plat">Telegram</span>
+                </div>
+                <div class="office-stats" id="stats-miles"></div>
+            </div>
+            <div class="ws-area" id="ws-miles"></div>
+        </div>
+        <div class="office-panel">
+            <div class="office-hdr">
+                <div class="office-title-grp">
+                    <span class="office-name" style="color:var(--amber)">PMO Team</span>
+                    <span class="office-plat">Slack</span>
+                </div>
+                <div class="office-stats" id="stats-pmo"></div>
+            </div>
+            <div class="ws-area" id="ws-pmo"></div>
+        </div>
+    </div>
+
+    <div class="bottom-panel">
+        <div class="panel-section">
+            <div class="panel-hdr"><span class="panel-title">Activity Feed</span><span class="panel-badge badge-ok" id="feed-count">0</span></div>
+            <div class="panel-body" id="feed-body"></div>
+        </div>
+        <div class="panel-section alerts-section">
+            <div class="panel-hdr"><span class="panel-title">Alerts</span><span class="panel-badge" id="alert-badge">--</span></div>
+            <div class="panel-body" id="alerts-body"><div class="alerts-empty"><span class="alerts-empty-icon">&#x2713;</span><span>All systems operational</span></div></div>
+        </div>
+        <div class="panel-section chat-section">
+            <div class="panel-hdr"><span class="panel-title">Chat</span></div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-row">
+                <select id="chat-team" class="chat-team-select"><option value="miles">Miles</option><option value="pmo">PMO</option></select>
+                <input type="text" id="chat-input" class="chat-input" placeholder="Send message..." />
+                <button id="chat-send" class="chat-send-btn" onclick="sendChat()">SEND</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const AGENTS = {
+    miles: {
+        agents: [
+            { id:'miles', name:'Miles', role:'Chief of Staff', color:'#00e5ff', hair:'messy-cap', hairColor:'#1a1a2e', capColor:'#4a5568', skinColor:'#e8c4a0', jacket:'#37474f', shirt:'#78909c', acc:'dogtags' },
+            { id:'dev', name:'Dev', role:'Full-Stack Dev', color:'#00e676', hair:'messy-long', hairColor:'#0d0d0d', skinColor:'#d4a574', jacket:'#1b5e20', shirt:'#263238', acc:'headphones' },
+            { id:'architect', name:'Architect', role:'Solutions Arch.', color:'#b388ff', hair:'neat-side', hairColor:'#3e2723', skinColor:'#e8c4a0', jacket:'#311b92', shirt:'#212121', acc:'glasses' },
+            { id:'community', name:'Community', role:'Ai4Managers', color:'#ffb300', hair:'short-textured', hairColor:'#0d0d0d', skinColor:'#c68642', jacket:'#e65100', shirt:'#3e2723', acc:'' },
+            { id:'content', name:'Content', role:'Strategy', color:'#ff5252', hair:'wavy-beret', hairColor:'#4e342e', beretColor:'#b71c1c', skinColor:'#e8c4a0', jacket:'#880e4f', shirt:'#37474f', acc:'' },
+            { id:'research', name:'Research', role:'Tech Intel', color:'#448aff', hair:'messy-long', hairColor:'#1a1a2e', skinColor:'#d4a574', jacket:'#0d47a1', shirt:'#e0e0e0', acc:'' },
+        ]
+    },
+    pmo: {
+        agents: [
+            { id:'pmo', name:'PMO', role:'Project Manager', color:'#00e5ff', hair:'messy-cap', hairColor:'#2d1b0e', capColor:'#37474f', skinColor:'#e8c4a0', jacket:'#004d40', shirt:'#455a64', acc:'dogtags' },
+            { id:'architect', name:'Architect', role:'Solutions Arch.', color:'#b388ff', hair:'neat-side', hairColor:'#3e2723', skinColor:'#e8c4a0', jacket:'#4a148c', shirt:'#212121', acc:'glasses' },
+            { id:'dev2', name:'Dev', role:'Full-Stack Dev', color:'#00e676', hair:'short-textured', hairColor:'#0d0d0d', skinColor:'#d4a574', jacket:'#1b5e20', shirt:'#263238', acc:'headphones' },
+        ]
+    }
+};
+
+function buildWorkstations(teamKey) {
+    const team = AGENTS[teamKey];
+    const container = document.getElementById(`ws-${teamKey}`);
+    const count = team.agents.length;
+    // Each agent gets an evenly-spaced slot
+    container.innerHTML = team.agents.map((a, idx) => {
+        const screenLines = Array.from({length:5},(_,i) =>
+            `<div class="screen-line" style="width:${40+Math.random()*50}%;background:${a.color};animation-delay:${i*0.15}s"></div>`
+        ).join('');
+        // Position: distribute evenly across container width
+        const pct = count === 1 ? 50 : (10 + idx * (80 / (count - 1)));
+        return `
+        <div class="workstation idle" id="ws-${teamKey}-${a.id}" style="--agent-color:${a.color};left:${pct}%;transform:translateX(-50%)"
+             data-team="${teamKey}" data-agent="${a.id}" data-state="idle">
+            <div class="scene">
+                <div class="floor"></div>
+                <div class="desk-leg-l"></div>
+                <div class="desk-leg-r"></div>
+                <div class="desk"></div>
+                <div class="chair">
+                    <div class="chair-back"></div>
+                    <div class="chair-seat"></div>
+                </div>
+                <div class="laptop">
+                    <div class="laptop-screen"><div class="screen-glow"></div><div class="screen-lines">${screenLines}</div></div>
+                    <div class="laptop-base"></div>
+                </div>
+                <div class="work-pulse"></div>
+                <div class="character" style="--jacket-color:${a.jacket};--shirt-color:${a.shirt};--skin-color:${a.skinColor}">
+                    <div class="char-torso">
+                        ${a.acc?'':''}
+                    </div>
+                    <div class="char-arm-l" style="--jacket-color:${a.jacket};--skin-color:${a.skinColor}"></div>
+                    <div class="char-arm-r" style="--jacket-color:${a.jacket};--skin-color:${a.skinColor}"></div>
+                    <div class="char-neck-part" style="--skin-color:${a.skinColor}"></div>
+                    <div class="char-head hair-${a.hair} ${a.acc?'acc-'+a.acc:''}"
+                         style="--skin-color:${a.skinColor};--hair-color:${a.hairColor};${a.capColor?'--cap-color:'+a.capColor+';':''}${a.beretColor?'--beret-color:'+a.beretColor+';':''}">
+                        <div class="char-hair"></div>
+                        <div class="char-eyes"><div class="char-eye"></div><div class="char-eye"></div></div>
+                        <div class="char-mouth-part"></div>
+                    </div>
+                </div>
+                <div class="think-bubble">
+                    <div class="think-cloud">💭</div>
+                    <div class="think-dot"></div>
+                    <div class="think-dot"></div>
+                </div>
+            </div>
+            <div class="ws-info">
+                <span class="ws-name">${a.name}</span>
+                <span class="ws-role">${a.role}</span>
+                <span class="ws-status idle" id="status-${teamKey}-${a.id}">IDLE</span>
+                <span class="ws-activity" id="activity-${teamKey}-${a.id}"></span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+buildWorkstations('miles');
+buildWorkstations('pmo');
+
+// ═══ STATE ═══
+let liveStatus = { miles:{}, pmo:{}, _health:{}, _logs:[], _alerts:[] };
+let liveMode = false;
+let feedLog = [];
+let pollErrors = 0;
+
+async function pollStatus() {
+    try {
+        const r = await fetch('/api/status.json?t='+Date.now());
+        if (r.ok) { liveStatus = await r.json(); pollErrors=0; if(!liveMode){liveMode=true;addFeed('🔴','LIVE connected','miles','info');} applyStatus(); }
+        else pollErrors++;
+    } catch(e) { pollErrors++; }
+}
+
+// ═══ DELEGATION WALK ═══
+const AGENT_LABEL_TO_ID = {
+    miles: { dev:'dev', architect:'architect', community:'community', content:'content', research:'research' },
+    pmo:   { dev:'dev2', architect:'architect' }
+};
+const activeWalks = new Set(); // track "teamKey-fromId-toId" to avoid duplicates
+
+function spawnFlyingPapers(teamKey, fromId, toId) {
+    const walkKey = `${teamKey}-${fromId}-${toId}`;
+    if (activeWalks.has(walkKey)) return;
+    const fromWs = document.getElementById(`ws-${teamKey}-${fromId}`);
+    const toWs = document.getElementById(`ws-${teamKey}-${toId}`);
+    if (!fromWs || !toWs) return;
+
+    activeWalks.add(walkKey);
+
+    const fromRect = fromWs.getBoundingClientRect();
+    const toRect = toWs.getBoundingClientRect();
+    const numPapers = 3;
+
+    for (let i = 0; i < numPapers; i++) {
+        setTimeout(() => {
+            const paper = document.createElement('div');
+            paper.className = 'flying-paper';
+
+            // Start from the laptop area of source workstation
+            const startX = fromRect.left + fromRect.width / 2 - 6 + (Math.random() - 0.5) * 20;
+            const startY = fromRect.top + 40 + Math.random() * 10;
+            // End at the laptop area of target workstation
+            const endX = toRect.left + toRect.width / 2 - 6 + (Math.random() - 0.5) * 20;
+            const endY = toRect.top + 40 + Math.random() * 10;
+
+            paper.style.left = startX + 'px';
+            paper.style.top = startY + 'px';
+            document.body.appendChild(paper);
+
+            const duration = 800 + Math.random() * 400;
+            const arcHeight = -30 - Math.random() * 40; // arc upward
+            const spinDir = Math.random() > 0.5 ? 1 : -1;
+            const startTime = performance.now();
+
+            function animate(now) {
+                const t = Math.min((now - startTime) / duration, 1);
+                const ease = t < 0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+                const x = startX + (endX - startX) * ease;
+                // Parabolic arc
+                const arc = arcHeight * 4 * t * (1 - t);
+                const y = startY + (endY - startY) * ease + arc;
+                const rot = spinDir * t * 360;
+                const scaleY = 0.3 + 0.7 * Math.abs(Math.cos(t * Math.PI * 2));
+                paper.style.left = x + 'px';
+                paper.style.top = y + 'px';
+                paper.style.transform = `rotate(${rot}deg) scaleY(${scaleY})`;
+                if (t < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    paper.classList.add('arriving');
+                    setTimeout(() => paper.remove(), 200);
+                    if (i === numPapers - 1) activeWalks.delete(walkKey);
+                }
+            }
+            requestAnimationFrame(animate);
+        }, i * 150); // stagger each paper by 150ms
+    }
+}
+
+function applyStatus() {
+    for (const teamKey of ['miles','pmo']) {
+        const teamStatus = liveStatus[teamKey] || {};
+        const team = AGENTS[teamKey];
+        for (const agent of team.agents) {
+            let status = teamStatus[agent.id];
+            if (!status && teamKey==='pmo' && agent.id==='architect') status = teamStatus['architect2']||teamStatus['architect'];
+            if (!status) continue;
+
+            const state = status.state || 'idle';
+            const ws = document.getElementById(`ws-${teamKey}-${agent.id}`);
+            const stEl = document.getElementById(`status-${teamKey}-${agent.id}`);
+            const actEl = document.getElementById(`activity-${teamKey}-${agent.id}`);
+            if (!ws) continue;
+
+            const prev = ws.dataset.state;
+            const activity = status.activity || '';
+            actEl.textContent = activity;
+
+            // ── Delegation walk: chief walks to subagent ──
+            const chiefIds = { miles:'miles', pmo:'pmo' };
+            if (agent.id === chiefIds[teamKey] && activity.startsWith('Esperando a ')) {
+                const targetLabel = activity.replace('Esperando a ', '').trim();
+                const targetId = (AGENT_LABEL_TO_ID[teamKey] || {})[targetLabel];
+                if (targetId) {
+                    spawnFlyingPapers(teamKey, agent.id, targetId);
+                }
+            }
+
+            // ── Transition: idle → activating → working ──
+            if (state === 'working' && (prev === 'idle' || !prev)) {
+                // Stand-up animation first
+                ws.className = 'workstation activating';
+                ws.dataset.state = 'activating';
+                stEl.className = 'ws-status working';
+                stEl.textContent = 'ACTIVATING';
+                addFeed('⚡', `${agent.name}: ${status.activity||'working'}`, teamKey, 'info');
+                // After stand-up completes, switch to working
+                const wsId = ws.id;
+                setTimeout(() => {
+                    const el = document.getElementById(wsId);
+                    if (el && el.dataset.state === 'activating') {
+                        el.className = 'workstation working';
+                        el.dataset.state = 'working';
+                        const parts = wsId.replace('ws-','').split('-');
+                        const st2 = document.getElementById(`status-${parts[0]}-${parts.slice(1).join('-')}`);
+                        if (st2) { st2.className = 'ws-status working'; st2.textContent = 'WORKING'; }
+                    }
+                }, 1200);
+            } else if (state === 'working' && prev === 'activating') {
+                // Still in stand-up animation — just update activity text, don't interrupt
+            } else {
+                ws.className = `workstation ${state}`;
+                ws.dataset.state = state;
+                stEl.className = `ws-status ${state}`;
+                stEl.textContent = state.toUpperCase();
+                if (state === 'working' && prev !== 'working') addFeed('⚡', `${agent.name}: ${status.activity||'working'}`, teamKey, 'info');
+            }
+            if (state === 'idle' && (prev === 'working' || prev === 'activating')) addFeed('✅', `${agent.name}: done`, teamKey, 'info');
+        }
+    }
+}
+
+function updateStats(teamKey) {
+    const teamStatus = liveStatus[teamKey] || {};
+    const team = AGENTS[teamKey];
+    let working=0, thinking=0;
+    for (const a of team.agents) { const s=teamStatus[a.id]; if(s?.state==='working')working++; if(s?.state==='thinking')thinking++; }
+    const avail = team.agents.length - working - thinking;
+    document.getElementById(`stats-${teamKey}`).innerHTML = `
+        <div class="o-stat"><span class="s-pip" style="background:var(--green)"></span>${avail} avail</div>
+        <div class="o-stat"><span class="s-pip" style="background:var(--cyan)"></span>${working} active</div>
+        ${thinking?`<div class="o-stat"><span class="s-pip" style="background:var(--violet)"></span>${thinking} think</div>`:''}
+    `;
+}
+
+function addFeed(emoji, text, team, level) {
+    feedLog.push({ ts:new Date().toTimeString().substring(0,8), emoji, text, team, level });
+    if (feedLog.length>60) feedLog.shift();
+}
+
+function updateFeed() {
+    const logs = liveStatus._logs || [];
+    const all = [...feedLog];
+    for (const l of logs) { const k=l.ts+l.team+l.msg; if(!all.some(e=>(e.ts||'')+e.team+(e.msg||e.text||'')===k)) all.push(l); }
+    const entries = all.slice(-40).reverse();
+    document.getElementById('feed-body').innerHTML = entries.map(e => {
+        const lv = e.level||'info';
+        const lvBadge = lv!=='info'?`<span class="feed-level feed-level-${lv}">${lv.toUpperCase()}</span>`:'';
+        return `<div class="feed-entry ${lv==='error'?'error':lv==='warn'?'warn':''}">
+            <span class="feed-time">${e.ts||e.time||''}</span>
+            <span class="feed-team feed-team-${e.team}">${(e.team||'').toUpperCase()}</span>
+            ${lvBadge}<span class="feed-text">${e.emoji||''} ${esc(e.msg||e.text||'')}</span></div>`;
+    }).join('');
+    document.getElementById('feed-count').textContent = entries.length;
+}
+
+function updateAlerts() {
+    const alerts = liveStatus._alerts || [];
+    const c = document.getElementById('alerts-body'), b = document.getElementById('alert-badge');
+    if (!alerts.length) {
+        c.innerHTML = '<div class="alerts-empty"><span class="alerts-empty-icon">&#x2713;</span><span>All systems operational</span></div>';
+        b.className='panel-badge badge-ok'; b.textContent='OK'; return;
+    }
+    b.className='panel-badge badge-count'; b.textContent=alerts.length;
+    c.innerHTML = alerts.slice().reverse().map(a =>
+        `<div class="alert-entry"><span class="alert-icon">${a.level==='error'?'🔴':'🟡'}</span><div class="alert-content"><div class="alert-msg">${esc(a.msg)}</div><div class="alert-meta">${(a.team||'').toUpperCase()} · ${a.ts} ${a.date?'· '+a.date:''}</div></div></div>`
+    ).join('');
+}
+
+function updateBots() {
+    const h = liveStatus._health || {};
+    for (const t of ['miles','pmo']) {
+        const d=h[t], ind=document.getElementById(`bot-${t}`), dot=document.getElementById(`dot-${t}`), up=document.getElementById(`uptime-${t}`);
+        if (!d) { ind.className='bot-ind'; dot.className='b-dot off'; up.textContent='no data'; continue; }
+        if (d.connected) {
+            ind.className='bot-ind on'; dot.className='b-dot on';
+            if (d.uptime_since) { const s=Math.floor((Date.now()-new Date(d.uptime_since).getTime())/1000); const hrs=Math.floor(s/3600),m=Math.floor((s%3600)/60); up.textContent=hrs>0?`${hrs}h${m}m`:`${m}m`; }
+        } else { ind.className='bot-ind off'; dot.className='b-dot off'; up.textContent='DOWN'; }
+    }
+}
+
+// ═══ CHAT ═══
+let pendingId=null, pollInt=null, chatStart=null, timerInt=null;
+function sendChat() {
+    const inp=document.getElementById('chat-input'), team=document.getElementById('chat-team').value, msg=inp.value.trim();
+    if(!msg)return; inp.value=''; document.getElementById('chat-send').disabled=true;
+    appendChat('user',team,msg); appendChat('processing',team,'Processing...');
+    chatStart=Date.now(); timerInt=setInterval(updateTimer,1000);
+    fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({team,message:msg})})
+    .then(r=>r.json()).then(d=>{pendingId=d.id;pollInt=setInterval(pollResp,2000);})
+    .catch(()=>{clearT();rmProc();appendChat('agent',team,'Error');document.getElementById('chat-send').disabled=false;});
+}
+function updateTimer(){const el=document.getElementById('chat-processing');if(!el||!chatStart)return;const s=Math.floor((Date.now()-chatStart)/1000),m=Math.floor(s/60);el.textContent=`Processing... (${m>0?m+'m ':''}${s%60}s)`;}
+function clearT(){if(pollInt){clearInterval(pollInt);pollInt=null;}if(timerInt){clearInterval(timerInt);timerInt=null;}chatStart=null;}
+function pollResp(){if(!pendingId)return;fetch(`/api/responses/${pendingId}`).then(r=>r.json()).then(d=>{if(d.status==='done'){clearT();rmProc();appendChat('agent',d.team,d.response);document.getElementById('chat-send').disabled=false;pendingId=null;}}).catch(()=>{});}
+function appendChat(type,team,text){
+    const c=document.getElementById('chat-messages'),d=document.createElement('div');
+    if(type==='processing'){d.className='chat-msg chat-msg-agent chat-msg-processing';d.id='chat-processing';d.textContent=text;}
+    else if(type==='user'){d.className='chat-msg chat-msg-user';d.innerHTML=`<div class="chat-msg-label">${team.toUpperCase()} ← YOU</div>${esc(text)}`;}
+    else{d.className='chat-msg chat-msg-agent';const t=text.length>500?text.substring(0,500)+'...':text;d.innerHTML=`<div class="chat-msg-label">${team.toUpperCase()} →</div>${esc(t)}`;}
+    c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function rmProc(){const e=document.getElementById('chat-processing');if(e)e.remove();}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
+
+// ═══ MICRO-ACTIONS (idle life) ═══
+const MICRO_ACTIONS = [
+    { cls:'micro-look-left', dur:2500 },
+    { cls:'micro-look-right', dur:2500 },
+    { cls:'micro-stretch', dur:3000 },
+    { cls:'micro-lean-back', dur:3500 },
+    { cls:'micro-phone', dur:3000 },
+    { cls:'micro-nod-off', dur:4000 },
+    { cls:'micro-wave', dur:2000 },
+    { cls:'micro-sleep', dur:10000 },
+];
+const microTimers = {};
+
+function scheduleMicro(wsEl) {
+    const id = wsEl.id;
+    if (microTimers[id]) clearTimeout(microTimers[id]);
+    const delay = 1500 + Math.random() * 3000; // 1.5-4.5s between actions
+    microTimers[id] = setTimeout(() => {
+        if (wsEl.dataset.state !== 'idle') return scheduleMicro(wsEl);
+        const action = MICRO_ACTIONS[Math.floor(Math.random() * MICRO_ACTIONS.length)];
+        // Remove any previous micro class
+        MICRO_ACTIONS.forEach(a => wsEl.classList.remove(a.cls));
+        wsEl.classList.add(action.cls);
+        setTimeout(() => {
+            wsEl.classList.remove(action.cls);
+            scheduleMicro(wsEl);
+        }, action.dur);
+    }, delay);
+}
+
+function initMicroActions() {
+    document.querySelectorAll('.workstation').forEach(ws => {
+        // Stagger start so they don't all begin at once
+        const initialDelay = 200 + Math.random() * 1500;
+        microTimers[ws.id] = setTimeout(() => scheduleMicro(ws), initialDelay);
+    });
+}
+
+// Watch for state changes — restart micro-actions when returning to idle
+const origApply = applyStatus;
+applyStatus = function() {
+    origApply();
+    document.querySelectorAll('.workstation').forEach(ws => {
+        if (ws.dataset.state !== 'idle') {
+            MICRO_ACTIONS.forEach(a => ws.classList.remove(a.cls));
+            if (microTimers[ws.id]) { clearTimeout(microTimers[ws.id]); microTimers[ws.id] = null; }
+        }
+        if (ws.dataset.state === 'idle' && !microTimers[ws.id]) scheduleMicro(ws);
+    });
+};
+
+initMicroActions();
+
+
+
+
+// ═══ INIT ═══
+addFeed('🚀','Control Center online','miles','info');
+addFeed('🚀','Control Center online','pmo','info');
+pollStatus(); setInterval(pollStatus, 2000);
+setInterval(()=>{updateStats('miles');updateStats('pmo');updateFeed();updateAlerts();updateBots();}, 500);
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',second:'2-digit'});},1000);
+document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}});
+</script>
+</body>
+</html>
