@@ -402,10 +402,10 @@
 		left: 50%;
 		transform: translateX(-50%);
 		width: 22px;
-		height: 7px;
-		border: 1px solid rgba(150, 160, 180, 0.5);
+		height: 8px;
+		border: 1.5px solid rgba(200, 220, 255, 0.8);
 		border-radius: 3px;
-		background: rgba(180, 200, 255, 0.05);
+		background: rgba(180, 210, 255, 0.15);
 		z-index: 7;
 	}
 	.acc-headphones .char-head::after {
