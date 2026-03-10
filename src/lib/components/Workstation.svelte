@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { T } from '@threlte/core';
+	import { HTML } from '@threlte/extras';
 	import type { AgentDef, AgentState } from '$lib/types';
-	import Character from './Character.svelte';
+	import PixelCharacter from './PixelCharacter.svelte';
 
 	interface Props {
 		agent: AgentDef;
@@ -29,7 +30,7 @@
 <T.Group position={position}>
 	<!-- ═══ DESK ═══ -->
 	<!-- Desktop surface -->
-	<T.Mesh position={[0, 0.6, 0]}>
+	<T.Mesh position={[0, 0.6, 0]} castShadow receiveShadow>
 		<T.BoxGeometry args={[1.8, 0.06, 0.8]} />
 		<T.MeshStandardMaterial color="#2d3a5c" roughness={0.7} />
 	</T.Mesh>
@@ -104,14 +105,15 @@
 		decay={2}
 	/>
 
-	<!-- ═══ CHARACTER ═══ -->
-	<T.Group position={[0, 0, 0.65]}>
-		<Character {agent} agentState={state} />
-	</T.Group>
+	<!-- ═══ CSS PIXEL CHARACTER (HTML overlay) ═══ -->
+	<HTML position={[0, 1.2, 0.65]} transform center pointerEvents="none" sprite>
+		<div style="transform: scale(0.04);">
+			<PixelCharacter {agent} agentState={state} />
+		</div>
+	</HTML>
 
 	<!-- ═══ STATUS INDICATOR ═══ -->
 	{#if state === 'working'}
-		<!-- Working glow on floor -->
 		<T.PointLight
 			position={[0, 0.1, 0.65]}
 			color={agent.color}
