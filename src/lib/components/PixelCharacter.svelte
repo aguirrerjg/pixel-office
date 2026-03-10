@@ -260,6 +260,7 @@
 		transform: translateX(-50%);
 		display: flex;
 		gap: 6px;
+		z-index: 8;
 	}
 	.char-eye {
 		width: 5px;
@@ -298,6 +299,7 @@
 		background: rgba(0, 0, 0, 0.12);
 		border-radius: 1px;
 		transition: all 0.3s;
+		z-index: 8;
 	}
 	.char-wrap.working .char-mouth-part { width: 4px; height: 2px; border-radius: 0 0 2px 2px; background: rgba(0, 0, 0, 0.08); }
 	.char-wrap.thinking .char-mouth-part { width: 3px; height: 3px; border-radius: 50%; background: rgba(0, 0, 0, 0.06); }
