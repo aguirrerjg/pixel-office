@@ -80,7 +80,7 @@
 					<!-- Work pulse -->
 					<div class="work-pulse"></div>
 					<!-- Character -->
-					<PixelCharacter {agent} agentState={agentState} />
+					<PixelCharacter {agent} agentState={agentState} activity={getAgentActivity(agent.id)} />
 				</div>
 			{/each}
 		{/if}
@@ -243,6 +243,7 @@
 		border-radius: 3px 3px 0 0;
 		border: 1px solid rgba(100, 120, 180, 0.15);
 		border-bottom: none;
+		z-index: 3;
 	}
 
 	.desk-leg-l, .desk-leg-r {
@@ -289,7 +290,7 @@
 		bottom: 38px;
 		left: 50%;
 		transform: translateX(-50%);
-		z-index: 3;
+		z-index: 5;
 	}
 	.laptop-base {
 		width: 36px;

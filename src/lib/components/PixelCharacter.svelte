@@ -4,70 +4,131 @@
 	interface Props {
 		agent: AgentDef;
 		agentState?: AgentState;
+		activity?: string;
 	}
 
-	let { agent, agentState = 'idle' }: Props = $props();
+	let { agent, agentState = 'idle', activity = '' }: Props = $props();
 
 	const hairClass = $derived(`hair-${agent.hair}`);
 	const accClass = $derived(agent.acc ? `acc-${agent.acc}` : '');
 </script>
 
+<!-- Name label ABOVE character -->
+<div class="ws-label-top">
+	<span class="ws-name" style="color:{agent.color}">{agent.name}</span>
+	<span class="ws-role">{agent.role}</span>
+</div>
+
+<!-- Character (sits behind desk, z-index 1) -->
 <div class="char-wrap {agentState}">
-	<div class="scene">
-		<div class="character" style="--jacket-color:{agent.jacket};--shirt-color:{agent.shirt};--skin-color:{agent.skinColor}">
-			<div class="char-torso"></div>
-			<div class="char-arm-l"></div>
-			<div class="char-arm-r"></div>
-			<div class="char-neck-part"></div>
-			<div class="char-head {hairClass} {accClass}"
-				style="--skin-color:{agent.skinColor};--hair-color:{agent.hairColor};{agent.capColor ? '--cap-color:'+agent.capColor+';' : ''}{agent.beretColor ? '--beret-color:'+agent.beretColor+';' : ''}">
-				<div class="char-hair"></div>
-				<div class="char-eyes"><div class="char-eye"></div><div class="char-eye"></div></div>
-				<div class="char-mouth-part"></div>
-			</div>
-		</div>
-		<!-- Think bubble -->
-		<div class="think-bubble">
-			<div class="think-cloud">💭</div>
-			<div class="think-dot"></div>
-			<div class="think-dot"></div>
+	<div class="character" style="--jacket-color:{agent.jacket};--shirt-color:{agent.shirt};--skin-color:{agent.skinColor}">
+		<div class="char-torso"></div>
+		<div class="char-arm-l"></div>
+		<div class="char-arm-r"></div>
+		<div class="char-neck-part"></div>
+		<div class="char-head {hairClass} {accClass}"
+			style="--skin-color:{agent.skinColor};--hair-color:{agent.hairColor};{agent.capColor ? '--cap-color:'+agent.capColor+';' : ''}{agent.beretColor ? '--beret-color:'+agent.beretColor+';' : ''}">
+			<div class="char-hair"></div>
+			<div class="char-eyes"><div class="char-eye"></div><div class="char-eye"></div></div>
+			<div class="char-mouth-part"></div>
 		</div>
 	</div>
-
-	<!-- Agent label -->
-	<div class="ws-info">
-		<span class="ws-name" style="color:{agent.color}">{agent.name}</span>
-		<span class="ws-status {agentState}">{agentState}</span>
+	<!-- Think bubble -->
+	<div class="think-bubble">
+		<div class="think-cloud">💭</div>
+		<div class="think-dot"></div>
+		<div class="think-dot"></div>
 	</div>
 </div>
 
+<!-- Status label BELOW desk -->
+<div class="ws-label-bottom">
+	<span class="ws-status {agentState}">{agentState}</span>
+	{#if activity}
+		<span class="ws-activity">{activity}</span>
+	{/if}
+</div>
+
 <style>
-	.char-wrap {
+	/* ── Labels above character ── */
+	.ws-label-top {
 		position: absolute;
-		bottom: -55px;
+		bottom: 115px;
 		left: 50%;
 		transform: translateX(-50%);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		width: 100px;
-		z-index: 4;
+		gap: 1px;
+		z-index: 10;
+		white-space: nowrap;
+	}
+	.ws-name {
+		font-family: 'Chakra Petch', monospace;
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.5px;
+	}
+	.ws-role {
+		font-family: 'Fira Code', monospace;
+		font-size: 7px;
+		color: #4d5570;
+		letter-spacing: 0.3px;
 	}
 
-	.scene {
-		width: 100%;
-		height: 100px;
-		position: relative;
-		overflow: visible;
-	}
-
-	/* ── Character Body ── */
-	.character {
+	/* ── Labels below desk ── */
+	.ws-label-bottom {
 		position: absolute;
-		bottom: 10px;
+		bottom: -22px;
 		left: 50%;
 		transform: translateX(-50%);
-		z-index: 2;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 2px;
+		z-index: 10;
+		white-space: nowrap;
+	}
+	.ws-status {
+		font-family: 'Fira Code', monospace;
+		font-size: 7px;
+		font-weight: 600;
+		padding: 1px 4px;
+		border-radius: 3px;
+		letter-spacing: 0.5px;
+		text-transform: uppercase;
+	}
+	.ws-status.idle { background: rgba(61, 69, 102, 0.3); color: #6b7394; }
+	.ws-status.working { background: rgba(0, 229, 255, 0.12); color: #00e5ff; }
+	.ws-status.thinking { background: rgba(179, 136, 255, 0.12); color: #b388ff; }
+	.ws-status.activating { background: rgba(255, 179, 0, 0.12); color: #ffb300; }
+	.ws-activity {
+		font-family: 'Fira Code', monospace;
+		font-size: 6px;
+		color: #4d5570;
+		max-width: 110px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		text-align: center;
+	}
+
+	/* ── Character container (behind desk) ── */
+	.char-wrap {
+		position: absolute;
+		bottom: 36px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 60px;
+		height: 80px;
+		z-index: 1;
+	}
+
+	.character {
+		position: absolute;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 1;
 		transition: all 0.6s ease;
 	}
 
@@ -372,8 +433,8 @@
 	/* ── Think bubble ── */
 	.think-bubble {
 		position: absolute;
-		top: -5px;
-		right: 10px;
+		top: -10px;
+		right: -5px;
 		z-index: 10;
 		opacity: 0;
 		transition: opacity 0.5s;
@@ -414,31 +475,4 @@
 		75% { transform: translateX(-50%) translateY(-10px); }
 		100% { transform: translateX(-50%) translateY(0); }
 	}
-
-	/* ── Agent label ── */
-	.ws-info {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 2px;
-		margin-top: 4px;
-	}
-	.ws-name {
-		font-family: 'Chakra Petch', monospace;
-		font-size: 10px;
-		font-weight: 600;
-		letter-spacing: 0.5px;
-	}
-	.ws-status {
-		font-family: 'Fira Code', monospace;
-		font-size: 7px;
-		font-weight: 600;
-		padding: 1px 4px;
-		border-radius: 3px;
-		letter-spacing: 0.5px;
-		text-transform: uppercase;
-	}
-	.ws-status.idle { background: rgba(61, 69, 102, 0.3); color: #6b7394; }
-	.ws-status.working { background: rgba(0, 229, 255, 0.12); color: #00e5ff; }
-	.ws-status.thinking { background: rgba(179, 136, 255, 0.12); color: #b388ff; }
 </style>
