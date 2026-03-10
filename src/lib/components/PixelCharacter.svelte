@@ -107,8 +107,24 @@
 		gap: 4px;
 	}
 	.ws-status.idle { background: rgba(40, 45, 65, 0.85); color: #8090a8; }
-	.ws-status.working { background: rgba(0, 60, 70, 0.85); color: #00e5ff; text-shadow: 0 0 4px rgba(0,229,255,0.4); }
-	.ws-status.thinking { background: rgba(50, 30, 80, 0.85); color: #c8a0ff; text-shadow: 0 0 4px rgba(179,136,255,0.4); }
+	.ws-status.working {
+		background: rgba(0, 40, 50, 0.95);
+		color: #00e5ff;
+		font-size: 10px;
+		padding: 3px 10px;
+		text-shadow: 0 0 6px rgba(0,229,255,0.5);
+		box-shadow: 0 0 8px rgba(0,229,255,0.3), inset 0 0 4px rgba(0,229,255,0.1);
+		border: 1px solid rgba(0,229,255,0.3);
+	}
+	.ws-status.thinking {
+		background: rgba(35, 20, 60, 0.95);
+		color: #c8a0ff;
+		font-size: 10px;
+		padding: 3px 10px;
+		text-shadow: 0 0 6px rgba(179,136,255,0.5);
+		box-shadow: 0 0 8px rgba(179,136,255,0.3), inset 0 0 4px rgba(179,136,255,0.1);
+		border: 1px solid rgba(179,136,255,0.3);
+	}
 	.ws-status.activating { background: rgba(70, 50, 0, 0.85); color: #ffcc33; text-shadow: 0 0 4px rgba(255,179,0,0.4); }
 
 	/* Status indicator dot */
@@ -136,15 +152,16 @@
 
 	.ws-activity {
 		font-family: 'Fira Code', monospace;
-		font-size: 8px;
-		color: #a0a8b8;
-		background: rgba(20, 24, 32, 0.75);
-		padding: 1px 6px;
+		font-size: 9px;
+		color: #d0d8e8;
+		background: rgba(10, 14, 24, 0.92);
+		padding: 2px 8px;
 		border-radius: 3px;
-		max-width: 160px;
+		max-width: 180px;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		text-align: center;
+		border: 1px solid rgba(255,255,255,0.08);
 	}
 
 	/* ═══ CHARACTER CONTAINER ═══ */
