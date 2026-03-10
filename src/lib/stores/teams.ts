@@ -23,7 +23,7 @@ export const TEAMS: TeamDef[] = [
 		color: '#ffb300',
 		agents: [
 			{ id: 'pmo', name: 'PMO', role: 'Project Manager', color: '#00e5ff', hair: 'messy-cap', hairColor: '#2d1b0e', capColor: '#37474f', skinColor: '#e8c4a0', jacket: '#004d40', shirt: '#455a64', acc: 'dogtags' },
-			{ id: 'architect', name: 'Architect', role: 'Solutions Arch.', color: '#b388ff', hair: 'neat-side', hairColor: '#3e2723', skinColor: '#e8c4a0', jacket: '#4a148c', shirt: '#212121', acc: 'glasses' },
+			{ id: 'architect2', name: 'Architect', role: 'Solutions Arch.', color: '#b388ff', hair: 'neat-side', hairColor: '#3e2723', skinColor: '#e8c4a0', jacket: '#4a148c', shirt: '#212121', acc: 'glasses' },
 			{ id: 'dev2', name: 'Dev', role: 'Full-Stack Dev', color: '#00e676', hair: 'short-textured', hairColor: '#0d0d0d', skinColor: '#d4a574', jacket: '#1b5e20', shirt: '#263238', acc: 'glasses' },
 		],
 	},
@@ -32,5 +32,5 @@ export const TEAMS: TeamDef[] = [
 /** Map agent labels to IDs for delegation detection */
 export const DELEGATION_MAP: Record<string, Record<string, string>> = {
 	miles: { dev: 'dev', architect: 'architect', community: 'community', content: 'content', research: 'research' },
-	pmo: { dev: 'dev2', architect: 'architect' },
+	pmo: { dev: 'dev2', architect: 'architect2' },
 };
