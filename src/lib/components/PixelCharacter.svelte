@@ -91,22 +91,25 @@
 	}
 	.ws-status {
 		font-family: 'Fira Code', monospace;
-		font-size: 7px;
-		font-weight: 600;
-		padding: 1px 4px;
-		border-radius: 3px;
-		letter-spacing: 0.5px;
+		font-size: 9px;
+		font-weight: 700;
+		padding: 2px 8px;
+		border-radius: 4px;
+		letter-spacing: 0.8px;
 		text-transform: uppercase;
 	}
-	.ws-status.idle { background: rgba(61, 69, 102, 0.3); color: #6b7394; }
-	.ws-status.working { background: rgba(0, 229, 255, 0.12); color: #00e5ff; }
-	.ws-status.thinking { background: rgba(179, 136, 255, 0.12); color: #b388ff; }
-	.ws-status.activating { background: rgba(255, 179, 0, 0.12); color: #ffb300; }
+	.ws-status.idle { background: rgba(40, 45, 65, 0.85); color: #8090a8; }
+	.ws-status.working { background: rgba(0, 60, 70, 0.85); color: #00e5ff; text-shadow: 0 0 4px rgba(0,229,255,0.4); }
+	.ws-status.thinking { background: rgba(50, 30, 80, 0.85); color: #c8a0ff; text-shadow: 0 0 4px rgba(179,136,255,0.4); }
+	.ws-status.activating { background: rgba(70, 50, 0, 0.85); color: #ffcc33; text-shadow: 0 0 4px rgba(255,179,0,0.4); }
 	.ws-activity {
 		font-family: 'Fira Code', monospace;
-		font-size: 6px;
-		color: #4d5570;
-		max-width: 110px;
+		font-size: 8px;
+		color: #a0a8b8;
+		background: rgba(20, 24, 32, 0.75);
+		padding: 1px 6px;
+		border-radius: 3px;
+		max-width: 130px;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		text-align: center;

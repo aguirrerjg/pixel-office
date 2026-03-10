@@ -945,7 +945,7 @@
 		display: none !important;
 	}
 	.workstation-wrap :global(.ws-label-bottom) {
-		bottom: -36px;
+		bottom: -42px;
 		z-index: 20;
 	}
 
