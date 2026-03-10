@@ -13,32 +13,44 @@
 	let { teamKey, teamName, teamColor, platform }: Props = $props();
 
 	const team = $derived(TEAMS.find((t) => t.key === teamKey));
-	const agentCount = $derived(team?.agents.length ?? 0);
 	const teamStatus: TeamStatus = $derived(teamKey === 'miles' ? $milesStatus : $pmoStatus);
 
-	// Dynamic scaling: fewer agents = bigger characters, better space usage
-	const agentScale = $derived(
-		agentCount <= 3 ? 1.65 :
-		agentCount <= 4 ? 1.45 :
-		agentCount <= 5 ? 1.3 :
-		1.2
-	);
-	// Tighter spread for fewer agents
-	const spreadPct = $derived(
-		agentCount <= 3 ? { start: 24, range: 52 } :
-		agentCount <= 4 ? { start: 18, range: 64 } :
-		{ start: 12, range: 76 }
-	);
+	// Split agents into rows of 3
+	const rows = $derived.by(() => {
+		if (!team) return [] as typeof team.agents[];
+		const result: typeof team.agents[] = [];
+		for (let i = 0; i < team.agents.length; i += 3) {
+			result.push(team.agents.slice(i, i + 3));
+		}
+		return result;
+	});
+
+	function getRowStyle(rowIdx: number, totalRows: number) {
+		if (totalRows === 1) return { bottom: 32, scale: 1.45, spread: { start: 22, range: 56 }, paperTop: 36 };
+		// 2 rows: back smaller/higher, front bigger/lower
+		if (rowIdx === 0) return { bottom: 50, scale: 1.0, spread: { start: 22, range: 56 }, paperTop: 26 };
+		return { bottom: 22, scale: 1.3, spread: { start: 22, range: 56 }, paperTop: 54 };
+	}
 
 	// Agent position map (id → left %)
 	const agentPositions = $derived.by(() => {
 		const map: Record<string, number> = {};
-		if (team) {
-			team.agents.forEach((agent, idx) => {
-				map[agent.id] = agentCount === 1 ? 50 :
-					(spreadPct.start + idx * (spreadPct.range / (agentCount - 1)));
+		rows.forEach((row, rowIdx) => {
+			const style = getRowStyle(rowIdx, rows.length);
+			row.forEach((agent, idx) => {
+				map[agent.id] = row.length === 1 ? 50 :
+					(style.spread.start + idx * (style.spread.range / (row.length - 1)));
 			});
-		}
+		});
+		return map;
+	});
+
+	// Track which row each agent is in
+	const agentRowMap = $derived.by(() => {
+		const map: Record<string, number> = {};
+		rows.forEach((row, rowIdx) => {
+			row.forEach(agent => { map[agent.id] = rowIdx; });
+		});
 		return map;
 	});
 
@@ -226,16 +238,17 @@
 			<div class="foliage f4"></div>
 		</div>
 
-		<!-- DESK AREA: desk + agents as a single unit -->
-		<div class="desk-area">
-			<!-- AGENTS (behind desk, z-index lower than desk front) -->
-			{#if team}
-				{#each team.agents as agent, idx}
-					{@const pct = agentCount === 1 ? 50 : (spreadPct.start + idx * (spreadPct.range / (agentCount - 1)))}
+		<!-- DESK ROWS: each row is a desk + agents unit -->
+		{#each rows as row, rowIdx}
+			{@const rowStyle = getRowStyle(rowIdx, rows.length)}
+			<div class="desk-area" style="bottom:{rowStyle.bottom}%">
+				<!-- AGENTS (behind desk) -->
+				{#each row as agent, idx}
+					{@const pct = row.length === 1 ? 50 : (rowStyle.spread.start + idx * (rowStyle.spread.range / (row.length - 1)))}
 					{@const agentState = getAgentState(agent.id)}
 					<div
 						class="workstation-wrap {agentState}"
-						style="left:{pct}%;--agent-color:{agent.color};--agent-scale:{agentScale}"
+						style="left:{pct}%;--agent-color:{agent.color};--agent-scale:{rowStyle.scale}"
 					>
 						<!-- Monitor -->
 						<div class="monitor">
@@ -259,66 +272,49 @@
 						<PixelCharacter {agent} agentState={agentState} activity={getAgentActivity(agent.id)} />
 					</div>
 				{/each}
-			{/if}
 
-			<!-- DESK (in front of agents) -->
-			<div class="desk-surface"></div>
-			<div class="desk-front-panel">
-				<!-- Name badges as green pills -->
-				{#if team}
-					{#each team.agents as agent, idx}
-						{@const pillPct = agentCount === 1 ? 50 : (spreadPct.start + idx * (spreadPct.range / (agentCount - 1)))}
+				<!-- DESK (in front of agents) -->
+				<div class="desk-surface"></div>
+				<div class="desk-front-panel">
+					{#each row as agent, idx}
+						{@const pillPct = row.length === 1 ? 50 : (rowStyle.spread.start + idx * (rowStyle.spread.range / (row.length - 1)))}
 						<div class="name-pill" style="left:{pillPct}%;--pill-color:{agent.color}">
 							{agent.name}
 						</div>
 					{/each}
+				</div>
+				<div class="desk-leg dl"></div>
+				<div class="desk-leg dr"></div>
+				{#if rowIdx === rows.length - 1}
+					<!-- Coffee mug on front desk -->
+					<div class="coffee-mug">
+						<div class="mug-body"></div>
+						<div class="mug-handle"></div>
+						<div class="mug-steam s1"></div>
+						<div class="mug-steam s2"></div>
+					</div>
 				{/if}
 			</div>
-			<div class="desk-leg dl"></div>
-			<div class="desk-leg dr"></div>
-			<!-- Coffee mug on desk -->
-			<div class="coffee-mug">
-				<div class="mug-body"></div>
-				<div class="mug-handle"></div>
-				<div class="mug-steam s1"></div>
-				<div class="mug-steam s2"></div>
-			</div>
-		</div>
+		{/each}
 
 		<!-- PAPER TOSS: delegation animation -->
 		{#each delegations as deleg (deleg.from + deleg.to)}
 			{@const minPct = Math.min(deleg.fromPct, deleg.toPct)}
 			{@const maxPct = Math.max(deleg.fromPct, deleg.toPct)}
 			{@const goingRight = deleg.toPct > deleg.fromPct}
+			{@const fromRow = agentRowMap[deleg.from] ?? 0}
+			{@const toRow = agentRowMap[deleg.to] ?? 0}
+			{@const paperTop = getRowStyle(Math.min(fromRow, toRow), rows.length).paperTop}
 			<div
 				class="paper-toss"
 				class:going-left={!goingRight}
-				style="left:{minPct}%;width:{maxPct - minPct}%"
+				style="left:{minPct}%;width:{maxPct - minPct}%;top:{paperTop}%"
 			>
 				<div class="paper p1" style="--paper-accent:{deleg.color}"><div class="paper-fold"></div></div>
 				<div class="paper p2" style="--paper-accent:{deleg.color}"><div class="paper-fold"></div></div>
 				<div class="paper p3" style="--paper-accent:{deleg.color}"><div class="paper-fold"></div></div>
 			</div>
 		{/each}
-
-		<!-- SERVER RACKS (bottom) -->
-		<div class="server-area">
-			{#each Array(Math.min(agentCount + 2, 6)) as _, i}
-				<div class="server-rack">
-					<div class="rack-unit ru1"></div>
-					<div class="rack-unit ru2"></div>
-					<div class="rack-unit ru3"></div>
-					<div class="rack-led l1"></div>
-					<div class="rack-led l2"></div>
-					<div class="rack-led l3"></div>
-					<!-- Colored cables -->
-					<div class="cable c-red" style="left:{4+i*2}px"></div>
-					<div class="cable c-green" style="left:{10+i*2}px"></div>
-					<div class="cable c-blue" style="left:{16+i*2}px"></div>
-					<div class="cable c-yellow" style="left:{22+i*2}px"></div>
-				</div>
-			{/each}
-		</div>
 	</div>
 </div>
 
@@ -722,7 +718,6 @@
 	/* ═══ DESK AREA (anchor for characters + desk) ═══ */
 	.desk-area {
 		position: absolute;
-		bottom: 38%;
 		left: 6%;
 		right: 6%;
 		height: 120px;
@@ -847,7 +842,7 @@
 	/* ═══ PLANTS (tall trees) ═══ */
 	.plant {
 		position: absolute;
-		bottom: 36%;
+		bottom: 18%;
 		z-index: 7;
 	}
 	.plant.left { left: 1%; }
@@ -921,65 +916,6 @@
 		height: 24px;
 		background: radial-gradient(ellipse, #68c468 10%, #48a048 60%);
 	}
-
-	/* ═══ SERVER RACKS ═══ */
-	.server-area {
-		position: absolute;
-		bottom: 1%;
-		left: 5%;
-		right: 5%;
-		height: 32%;
-		display: flex;
-		gap: 5px;
-		justify-content: center;
-		z-index: 1;
-	}
-	.server-rack {
-		width: 50px;
-		height: 100%;
-		background: linear-gradient(180deg, #3a3a44 0%, #2a2a32 50%, #1e1e26 100%);
-		border: 2px solid #4a4a56;
-		border-radius: 3px;
-		position: relative;
-		box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-	}
-	.rack-unit {
-		position: absolute;
-		left: 4px;
-		right: 4px;
-		height: 18%;
-		background: #18181e;
-		border: 1px solid #3a3a48;
-		border-radius: 1px;
-	}
-	.rack-unit.ru1 { top: 8%; }
-	.rack-unit.ru2 { top: 34%; }
-	.rack-unit.ru3 { top: 60%; }
-	.rack-led {
-		position: absolute;
-		width: 4px;
-		height: 4px;
-		border-radius: 50%;
-		right: 7px;
-		animation: ledBlink 3s ease-in-out infinite;
-	}
-	.rack-led.l1 { top: 13%; background: #00e676; box-shadow: 0 0 4px #00e676; animation-delay: 0s; }
-	.rack-led.l2 { top: 39%; background: #ffb300; box-shadow: 0 0 4px #ffb300; animation-delay: 1s; }
-	.rack-led.l3 { top: 65%; background: #00e5ff; box-shadow: 0 0 4px #00e5ff; animation-delay: 0.5s; }
-	@keyframes ledBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-	/* Colored cables dangling from racks */
-	.cable {
-		position: absolute;
-		bottom: -8px;
-		width: 3px;
-		height: 14px;
-		border-radius: 0 0 3px 3px;
-		box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-	}
-	.cable.c-red { background: #e53935; }
-	.cable.c-green { background: #43a047; }
-	.cable.c-blue { background: #1e88e5; }
-	.cable.c-yellow { background: #fdd835; }
 
 	/* ═══ WORKSTATION WRAP ═══ */
 	.workstation-wrap {
@@ -1138,7 +1074,6 @@
 	/* ═══ PAPER TOSS (delegation animation) ═══ */
 	.paper-toss {
 		position: absolute;
-		top: 42%;
 		height: 120px;
 		pointer-events: none;
 		z-index: 50;

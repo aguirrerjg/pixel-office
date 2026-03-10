@@ -1,0 +1,19 @@
+{
+  "miles": {
+    "miles": { "state": "working", "activity": "Orchestrating team tasks", "since": "2026-03-09T20:30:00Z" },
+    "dev": { "state": "working", "activity": "Building API endpoints", "since": "2026-03-09T20:28:00Z" },
+    "architect": { "state": "thinking", "activity": "Designing system architecture", "since": "2026-03-09T20:25:00Z" },
+    "community": { "state": "idle", "activity": "", "since": "2026-03-09T20:20:00Z" },
+    "content": { "state": "working", "activity": "Writing blog post draft", "since": "2026-03-09T20:27:00Z" },
+    "research": { "state": "idle", "activity": "", "since": "2026-03-09T20:15:00Z" }
+  },
+  "pmo": {
+    "pmo": { "state": "thinking", "activity": "Reviewing sprint backlog", "since": "2026-03-09T20:29:00Z" },
+    "architect": { "state": "working", "activity": "Documenting architecture decisions", "since": "2026-03-09T20:26:00Z" },
+    "dev2": { "state": "idle", "activity": "", "since": "2026-03-09T20:18:00Z" }
+  },
+  "_health": {
+    "miles": { "connected": true, "last_check": "2026-03-09T20:37:00Z", "uptime_since": "2026-03-09T08:00:00Z" },
+    "pmo": { "connected": true, "last_check": "2026-03-09T20:37:00Z", "uptime_since": "2026-03-09T08:00:00Z" }
+  }
+}
