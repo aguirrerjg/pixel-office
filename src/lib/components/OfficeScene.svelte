@@ -287,19 +287,17 @@
 
 		<!-- PAPER TOSS: delegation animation -->
 		{#each delegations as deleg (deleg.from + deleg.to)}
+			{@const minPct = Math.min(deleg.fromPct, deleg.toPct)}
+			{@const maxPct = Math.max(deleg.fromPct, deleg.toPct)}
+			{@const goingRight = deleg.toPct > deleg.fromPct}
 			<div
 				class="paper-toss"
-				style="--from:{deleg.fromPct}%;--to:{deleg.toPct}%;--mid:{(deleg.fromPct + deleg.toPct) / 2}%"
+				class:going-left={!goingRight}
+				style="left:{minPct}%;width:{maxPct - minPct}%"
 			>
-				<div class="paper p1" style="--paper-accent:{deleg.color}">
-					<div class="paper-fold"></div>
-				</div>
-				<div class="paper p2" style="--paper-accent:{deleg.color}">
-					<div class="paper-fold"></div>
-				</div>
-				<div class="paper p3" style="--paper-accent:{deleg.color}">
-					<div class="paper-fold"></div>
-				</div>
+				<div class="paper p1" style="--paper-accent:{deleg.color}"><div class="paper-fold"></div></div>
+				<div class="paper p2" style="--paper-accent:{deleg.color}"><div class="paper-fold"></div></div>
+				<div class="paper p3" style="--paper-accent:{deleg.color}"><div class="paper-fold"></div></div>
 			</div>
 		{/each}
 
@@ -1140,38 +1138,37 @@
 	/* ═══ PAPER TOSS (delegation animation) ═══ */
 	.paper-toss {
 		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
+		top: 42%;
+		height: 120px;
 		pointer-events: none;
-		z-index: 15;
+		z-index: 50;
 	}
 	.paper {
 		position: absolute;
-		bottom: 52%;
-		left: var(--from);
-		width: 10px;
-		height: 13px;
+		bottom: 0;
+		left: 0%;
+		width: 18px;
+		height: 22px;
 		background: linear-gradient(180deg, #f8f4ec 0%, #ede6d6 100%);
 		border: 1px solid #c8c0b0;
 		border-radius: 1px;
 		opacity: 0;
-		animation: flyPaper 1.6s ease-in-out infinite;
+		animation: flyRight 1.8s ease-in-out infinite;
 		transform-origin: center;
-		box-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+		box-shadow: 1px 2px 4px rgba(0,0,0,0.25);
 	}
-	.paper.p2 { animation-delay: 0.35s; }
-	.paper.p3 { animation-delay: 0.7s; }
+	.going-left .paper { animation-name: flyLeft; }
+	.paper.p2 { animation-delay: 0.5s; }
+	.paper.p3 { animation-delay: 1.0s; }
 
 	/* Text lines on paper */
 	.paper::before {
 		content: '';
 		position: absolute;
-		top: 3px;
-		left: 2px;
-		right: 2px;
-		height: 6px;
+		top: 5px;
+		left: 3px;
+		right: 3px;
+		height: 10px;
 		background: repeating-linear-gradient(
 			180deg,
 			var(--paper-accent, #aaa) 0px,
@@ -1179,7 +1176,7 @@
 			transparent 1px,
 			transparent 3px
 		);
-		opacity: 0.35;
+		opacity: 0.4;
 		border-radius: 0.5px;
 	}
 	/* Folded corner */
@@ -1187,32 +1184,49 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		width: 4px;
-		height: 4px;
+		width: 6px;
+		height: 6px;
 		background: #ddd6c6;
 		clip-path: polygon(100% 0, 0 100%, 100% 100%);
 	}
 
-	@keyframes flyPaper {
+	/* Flying right (from < to) */
+	@keyframes flyRight {
 		0% {
-			left: var(--from);
-			transform: translateX(-50%) translateY(0) rotate(-10deg) scale(0.7);
+			left: 0%;
+			transform: translateY(0) rotate(-10deg) scale(0.8);
 			opacity: 0;
 		}
-		12% {
-			opacity: 1;
-		}
+		8% { opacity: 1; }
 		50% {
-			left: var(--mid);
-			transform: translateX(-50%) translateY(-85px) rotate(200deg) scale(1);
+			left: 50%;
+			transform: translateY(-100px) rotate(180deg) scale(1.1);
 			opacity: 1;
 		}
-		88% {
-			opacity: 0.6;
-		}
+		92% { opacity: 0.7; }
 		100% {
-			left: var(--to);
-			transform: translateX(-50%) translateY(0) rotate(380deg) scale(0.7);
+			left: 100%;
+			transform: translateY(0) rotate(360deg) scale(0.8);
+			opacity: 0;
+		}
+	}
+	/* Flying left (from > to) */
+	@keyframes flyLeft {
+		0% {
+			left: 100%;
+			transform: translateY(0) rotate(10deg) scale(0.8);
+			opacity: 0;
+		}
+		8% { opacity: 1; }
+		50% {
+			left: 50%;
+			transform: translateY(-100px) rotate(-180deg) scale(1.1);
+			opacity: 1;
+		}
+		92% { opacity: 0.7; }
+		100% {
+			left: 0%;
+			transform: translateY(0) rotate(-360deg) scale(0.8);
 			opacity: 0;
 		}
 	}
