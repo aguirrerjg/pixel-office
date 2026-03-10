@@ -188,8 +188,42 @@
 			<div class="foliage f4"></div>
 		</div>
 
-		<!-- LARGE CURVED DESK -->
-		<div class="shared-desk">
+		<!-- DESK AREA: desk + agents as a single unit -->
+		<div class="desk-area">
+			<!-- AGENTS (behind desk, z-index lower than desk front) -->
+			{#if team}
+				{#each team.agents as agent, idx}
+					{@const pct = agentCount === 1 ? 50 : (spreadPct.start + idx * (spreadPct.range / (agentCount - 1)))}
+					{@const agentState = getAgentState(agent.id)}
+					<div
+						class="workstation-wrap {agentState}"
+						style="left:{pct}%;--agent-color:{agent.color};--agent-scale:{agentScale}"
+					>
+						<!-- Monitor -->
+						<div class="monitor">
+							<div class="monitor-screen">
+								<div class="screen-glow"></div>
+								<div class="screen-lines">
+									{#each Array(5) as _, i}
+										<div
+											class="screen-line"
+											style="width:{40+Math.random()*50}%;background:{agent.color};animation-delay:{i*0.15}s"
+										></div>
+									{/each}
+								</div>
+							</div>
+							<div class="monitor-stand"></div>
+							<div class="monitor-base"></div>
+						</div>
+						<!-- Work pulse -->
+						<div class="work-pulse"></div>
+						<!-- Character -->
+						<PixelCharacter {agent} agentState={agentState} activity={getAgentActivity(agent.id)} />
+					</div>
+				{/each}
+			{/if}
+
+			<!-- DESK (in front of agents) -->
 			<div class="desk-surface"></div>
 			<div class="desk-front-panel">
 				<!-- Name badges as green pills -->
@@ -212,39 +246,6 @@
 				<div class="mug-steam s2"></div>
 			</div>
 		</div>
-
-		<!-- AGENTS AT DESK -->
-		{#if team}
-			{#each team.agents as agent, idx}
-				{@const pct = agentCount === 1 ? 50 : (spreadPct.start + idx * (spreadPct.range / (agentCount - 1)))}
-				{@const agentState = getAgentState(agent.id)}
-				<div
-					class="workstation-wrap {agentState}"
-					style="left:{pct}%;--agent-color:{agent.color};--agent-scale:{agentScale}"
-				>
-					<!-- Monitor -->
-					<div class="monitor">
-						<div class="monitor-screen">
-							<div class="screen-glow"></div>
-							<div class="screen-lines">
-								{#each Array(5) as _, i}
-									<div
-										class="screen-line"
-										style="width:{40+Math.random()*50}%;background:{agent.color};animation-delay:{i*0.15}s"
-									></div>
-								{/each}
-							</div>
-						</div>
-						<div class="monitor-stand"></div>
-						<div class="monitor-base"></div>
-					</div>
-					<!-- Work pulse -->
-					<div class="work-pulse"></div>
-					<!-- Character -->
-					<PixelCharacter {agent} agentState={agentState} activity={getAgentActivity(agent.id)} />
-				</div>
-			{/each}
-		{/if}
 
 		<!-- SERVER RACKS (bottom) -->
 		<div class="server-area">
@@ -664,18 +665,18 @@
 		background: radial-gradient(ellipse 100% 100%, rgba(0,0,0,0.12) 0%, transparent 70%);
 	}
 
-	/* ═══ LARGE CURVED DESK ═══ */
-	.shared-desk {
+	/* ═══ DESK AREA (anchor for characters + desk) ═══ */
+	.desk-area {
 		position: absolute;
-		bottom: 51%;
+		bottom: 38%;
 		left: 6%;
 		right: 6%;
-		height: 60px;
-		z-index: 8;
+		height: 120px;
+		z-index: 5;
 	}
 	.desk-surface {
 		position: absolute;
-		top: 0;
+		bottom: 40px;
 		left: 2%;
 		right: 2%;
 		height: 10px;
@@ -684,7 +685,7 @@
 		border: 2px solid rgba(180, 160, 120, 0.4);
 		border-bottom: none;
 		box-shadow: 0 -3px 12px rgba(0,0,0,0.1);
-		z-index: 2;
+		z-index: 10;
 	}
 	/* Subtle desk edge highlight */
 	.desk-surface::before {
@@ -699,7 +700,7 @@
 	}
 	.desk-front-panel {
 		position: absolute;
-		top: 9px;
+		bottom: 4px;
 		left: 0;
 		right: 0;
 		height: 36px;
@@ -708,9 +709,7 @@
 		border: 2px solid rgba(100, 80, 50, 0.3);
 		border-top: 1px solid #b89060;
 		box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-		z-index: 1;
-		position: relative;
-		top: 9px;
+		z-index: 10;
 	}
 	/* Wood grain on front panel */
 	.desk-front-panel::before {
@@ -723,7 +722,7 @@
 	}
 	.desk-leg {
 		position: absolute;
-		bottom: -22px;
+		bottom: -18px;
 		width: 8px;
 		height: 22px;
 		background: linear-gradient(180deg, #7a5e38 0%, #5a4528 100%);
@@ -755,9 +754,9 @@
 	/* ── Coffee mug ── */
 	.coffee-mug {
 		position: absolute;
-		top: -4px;
+		bottom: 48px;
 		right: 22%;
-		z-index: 3;
+		z-index: 11;
 	}
 	.mug-body {
 		width: 10px;
@@ -794,7 +793,7 @@
 	/* ═══ PLANTS (tall trees) ═══ */
 	.plant {
 		position: absolute;
-		bottom: 48%;
+		bottom: 36%;
 		z-index: 7;
 	}
 	.plant.left { left: 1%; }
@@ -931,7 +930,7 @@
 	/* ═══ WORKSTATION WRAP ═══ */
 	.workstation-wrap {
 		position: absolute;
-		bottom: 52%;
+		bottom: 30px;
 		width: 120px;
 		display: flex;
 		flex-direction: column;
