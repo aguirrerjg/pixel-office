@@ -25,8 +25,8 @@
 	);
 	// Tighter spread for fewer agents
 	const spreadPct = $derived(
-		agentCount <= 3 ? { start: 22, range: 56 } :
-		agentCount <= 4 ? { start: 16, range: 68 } :
+		agentCount <= 3 ? { start: 24, range: 52 } :
+		agentCount <= 4 ? { start: 18, range: 64 } :
 		{ start: 12, range: 76 }
 	);
 
@@ -374,7 +374,7 @@
 		top: 4%;
 		left: 4%;
 		width: 38%;
-		height: 58%;
+		height: 65%;
 		z-index: 2;
 	}
 	.map-frame {
@@ -415,7 +415,7 @@
 		top: 2%;
 		right: 5%;
 		width: 40%;
-		height: 66%;
+		height: 72%;
 		z-index: 2;
 	}
 	.window-frame {
@@ -527,8 +527,8 @@
 		height: 38px;
 		z-index: 3;
 	}
-	.bookshelf.left { bottom: 18%; left: 4%; width: 22%; }
-	.bookshelf.right { bottom: 18%; right: 5%; width: 18%; }
+	.bookshelf.left { bottom: 22%; left: 4%; width: 22%; }
+	.bookshelf.right { bottom: 22%; right: 5%; width: 18%; }
 	.shelf-board {
 		position: absolute;
 		bottom: 0;
@@ -574,10 +574,10 @@
 	/* ── Circuit Board Pattern ── */
 	.circuit-panel {
 		position: absolute;
-		bottom: 2%;
-		left: 10%;
-		right: 10%;
-		height: 45%;
+		bottom: 0%;
+		left: 5%;
+		right: 5%;
+		height: 55%;
 		z-index: 1;
 	}
 	.circuit-line {
@@ -667,7 +667,7 @@
 	/* ═══ LARGE CURVED DESK ═══ */
 	.shared-desk {
 		position: absolute;
-		bottom: 35%;
+		bottom: 33%;
 		left: 6%;
 		right: 6%;
 		height: 60px;
@@ -794,7 +794,7 @@
 	/* ═══ PLANTS (tall trees) ═══ */
 	.plant {
 		position: absolute;
-		bottom: 32%;
+		bottom: 30%;
 		z-index: 7;
 	}
 	.plant.left { left: 1%; }
@@ -875,7 +875,7 @@
 		bottom: 1%;
 		left: 5%;
 		right: 5%;
-		height: 16%;
+		height: 24%;
 		display: flex;
 		gap: 5px;
 		justify-content: center;
@@ -931,7 +931,7 @@
 	/* ═══ WORKSTATION WRAP ═══ */
 	.workstation-wrap {
 		position: absolute;
-		bottom: 42%;
+		bottom: 40%;
 		width: 120px;
 		display: flex;
 		flex-direction: column;
