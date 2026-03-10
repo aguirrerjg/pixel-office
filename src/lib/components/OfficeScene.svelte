@@ -321,7 +321,7 @@
 		top: 0;
 		left: 0;
 		right: 0;
-		height: 64%;
+		height: 68%;
 		background: linear-gradient(180deg, #c4a878 0%, #b89a6a 50%, #a88d5c 100%);
 		border-bottom: 4px solid #8a7550;
 		z-index: 0;
@@ -371,10 +371,10 @@
 	/* ── World Map ── */
 	.world-map {
 		position: absolute;
-		top: 6%;
+		top: 4%;
 		left: 4%;
 		width: 38%;
-		height: 52%;
+		height: 58%;
 		z-index: 2;
 	}
 	.map-frame {
@@ -412,10 +412,10 @@
 	/* ── Window with City Skyline ── */
 	.window {
 		position: absolute;
-		top: 4%;
+		top: 2%;
 		right: 5%;
 		width: 40%;
-		height: 60%;
+		height: 66%;
 		z-index: 2;
 	}
 	.window-frame {
@@ -524,11 +524,11 @@
 	/* ── Bookshelves (wall-mounted with brackets) ── */
 	.bookshelf {
 		position: absolute;
-		height: 34px;
+		height: 38px;
 		z-index: 3;
 	}
-	.bookshelf.left { bottom: 32%; left: 4%; width: 22%; }
-	.bookshelf.right { bottom: 32%; right: 5%; width: 18%; }
+	.bookshelf.left { bottom: 18%; left: 4%; width: 22%; }
+	.bookshelf.right { bottom: 18%; right: 5%; width: 18%; }
 	.shelf-board {
 		position: absolute;
 		bottom: 0;
@@ -629,7 +629,7 @@
 		bottom: 0;
 		left: 0;
 		right: 0;
-		height: 36%;
+		height: 32%;
 		background: linear-gradient(180deg, #c4a46e 0%, #b89860 8%, #c8a870 30%, #d0b078 60%, #c4a468 100%);
 		z-index: 0;
 	}
@@ -667,7 +667,7 @@
 	/* ═══ LARGE CURVED DESK ═══ */
 	.shared-desk {
 		position: absolute;
-		bottom: 31%;
+		bottom: 35%;
 		left: 6%;
 		right: 6%;
 		height: 60px;
@@ -794,7 +794,7 @@
 	/* ═══ PLANTS (tall trees) ═══ */
 	.plant {
 		position: absolute;
-		bottom: 28%;
+		bottom: 32%;
 		z-index: 7;
 	}
 	.plant.left { left: 1%; }
@@ -931,7 +931,7 @@
 	/* ═══ WORKSTATION WRAP ═══ */
 	.workstation-wrap {
 		position: absolute;
-		bottom: 38%;
+		bottom: 42%;
 		width: 120px;
 		display: flex;
 		flex-direction: column;
