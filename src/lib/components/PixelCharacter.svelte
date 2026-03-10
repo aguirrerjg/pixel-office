@@ -45,14 +45,18 @@
 
 <!-- Status label BELOW desk -->
 <div class="ws-label-bottom">
-	<span class="ws-status {agentState}">
-		{#if agentState === 'working' || agentState === 'thinking'}
+	{#if activity && (agentState === 'working' || agentState === 'thinking')}
+		<span class="ws-status-active {agentState}" title={activity}>
 			<span class="si"></span>
-		{/if}
-		{agentState}
-	</span>
-	{#if activity}
-		<span class="ws-activity" title={activity}>{activity}</span>
+			{activity}
+		</span>
+	{:else}
+		<span class="ws-status {agentState}">
+			{#if agentState === 'working' || agentState === 'thinking'}
+				<span class="si"></span>
+			{/if}
+			{agentState}
+		</span>
 	{/if}
 </div>
 
@@ -107,25 +111,39 @@
 		gap: 4px;
 	}
 	.ws-status.idle { background: rgba(40, 45, 65, 0.85); color: #8090a8; }
-	.ws-status.working {
-		background: rgba(0, 40, 50, 0.95);
-		color: #00e5ff;
-		font-size: 10px;
-		padding: 3px 10px;
-		text-shadow: 0 0 6px rgba(0,229,255,0.5);
-		box-shadow: 0 0 8px rgba(0,229,255,0.3), inset 0 0 4px rgba(0,229,255,0.1);
-		border: 1px solid rgba(0,229,255,0.3);
-	}
-	.ws-status.thinking {
-		background: rgba(35, 20, 60, 0.95);
-		color: #c8a0ff;
-		font-size: 10px;
-		padding: 3px 10px;
-		text-shadow: 0 0 6px rgba(179,136,255,0.5);
-		box-shadow: 0 0 8px rgba(179,136,255,0.3), inset 0 0 4px rgba(179,136,255,0.1);
-		border: 1px solid rgba(179,136,255,0.3);
-	}
+	.ws-status.working { background: rgba(0, 40, 50, 0.95); color: #00e5ff; text-shadow: 0 0 4px rgba(0,229,255,0.4); }
+	.ws-status.thinking { background: rgba(35, 20, 60, 0.95); color: #c8a0ff; text-shadow: 0 0 4px rgba(179,136,255,0.4); }
 	.ws-status.activating { background: rgba(70, 50, 0, 0.85); color: #ffcc33; text-shadow: 0 0 4px rgba(255,179,0,0.4); }
+
+	/* Combined status+activity pill for active states */
+	.ws-status-active {
+		font-family: 'Fira Code', monospace;
+		font-size: 10px;
+		font-weight: 600;
+		padding: 3px 10px;
+		border-radius: 5px;
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		max-width: 200px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.ws-status-active.working {
+		background: rgba(0, 30, 40, 0.95);
+		color: #00e5ff;
+		text-shadow: 0 0 6px rgba(0,229,255,0.5);
+		box-shadow: 0 0 10px rgba(0,229,255,0.3);
+		border: 1px solid rgba(0,229,255,0.35);
+	}
+	.ws-status-active.thinking {
+		background: rgba(30, 15, 55, 0.95);
+		color: #c8a0ff;
+		text-shadow: 0 0 6px rgba(179,136,255,0.5);
+		box-shadow: 0 0 10px rgba(179,136,255,0.3);
+		border: 1px solid rgba(179,136,255,0.35);
+	}
 
 	/* Status indicator dot */
 	.si {
@@ -135,14 +153,14 @@
 		display: inline-block;
 		flex-shrink: 0;
 	}
-	.ws-status.working .si {
+	.ws-status.working .si, .ws-status-active.working .si {
 		background: #00e5ff;
-		box-shadow: 0 0 4px #00e5ff;
+		box-shadow: 0 0 6px #00e5ff;
 		animation: siPulse 1s ease-in-out infinite;
 	}
-	.ws-status.thinking .si {
+	.ws-status.thinking .si, .ws-status-active.thinking .si {
 		background: #c8a0ff;
-		box-shadow: 0 0 4px #c8a0ff;
+		box-shadow: 0 0 6px #c8a0ff;
 		animation: siPulse 2s ease-in-out infinite;
 	}
 	@keyframes siPulse {
