@@ -348,12 +348,12 @@
 			{@const fromTop = getRowStyle(fromRow, rows.length).paperTop}
 			{@const toTop = getRowStyle(toRow, rows.length).paperTop}
 			{@const crossRow = toRow !== fromRow}
-			{@const spanHeight = crossRow ? (toTop - fromTop) : 0}
+			{@const toBottom = crossRow ? getRowStyle(toRow, rows.length).bottom : 0}
 			<div
 				class="paper-toss"
 				class:going-left={!goingRight}
 				class:cross-row={crossRow}
-				style="left:{minPct}%;width:{Math.max(maxPct - minPct, 12)}%;top:{fromTop}%;{crossRow ? `height:calc(${spanHeight}% + 60px)` : ''}"
+				style="left:{minPct}%;width:{Math.max(maxPct - minPct, 12)}%;top:{fromTop}%;{crossRow ? `bottom:calc(${toBottom}% + 60px)` : ''}"
 			>
 				<div class="paper p1" style="--paper-accent:{deleg.color}"><div class="paper-fold"></div></div>
 				<div class="paper p2" style="--paper-accent:{deleg.color}"><div class="paper-fold"></div></div>
@@ -1340,6 +1340,9 @@
 		height: 60px;
 		pointer-events: none;
 		z-index: 50;
+	}
+	.paper-toss.cross-row {
+		height: auto; /* height set by top + bottom from inline style */
 	}
 	.paper {
 		position: absolute;
