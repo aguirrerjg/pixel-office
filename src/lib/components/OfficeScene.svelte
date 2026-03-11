@@ -26,10 +26,11 @@
 	});
 
 	function getRowStyle(rowIdx: number, totalRows: number) {
-		if (totalRows === 1) return { bottom: 28, scale: 1.45, spread: { start: 22, range: 56 }, paperTop: 36 };
+		// paperTop = vertical % where papers fly (aligned with agent monitor level)
+		if (totalRows === 1) return { bottom: 28, scale: 1.45, spread: { start: 22, range: 56 }, paperTop: 58 };
 		// 2 rows: back smaller/higher, front bigger/lower
-		if (rowIdx === 0) return { bottom: 44, scale: 1.0, spread: { start: 22, range: 56 }, paperTop: 30 };
-		return { bottom: 14, scale: 1.3, spread: { start: 22, range: 56 }, paperTop: 54 };
+		if (rowIdx === 0) return { bottom: 44, scale: 1.0, spread: { start: 22, range: 56 }, paperTop: 44 };
+		return { bottom: 14, scale: 1.3, spread: { start: 22, range: 56 }, paperTop: 72 };
 	}
 
 	// Agent position map (id → left %)
