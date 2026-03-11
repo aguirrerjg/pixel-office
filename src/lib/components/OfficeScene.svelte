@@ -12,16 +12,6 @@
 
 	let { teamKey, teamName, teamColor, platform }: Props = $props();
 
-	let wsAreaEl: HTMLDivElement | undefined = $state();
-	let wsHeight = $state(600);
-
-	$effect(() => {
-		if (!wsAreaEl) return;
-		const ro = new ResizeObserver(([e]) => { wsHeight = e.contentRect.height; });
-		ro.observe(wsAreaEl);
-		return () => ro.disconnect();
-	});
-
 	const team = $derived(TEAMS.find((t) => t.key === teamKey));
 	const teamStatus: TeamStatus = $derived(teamKey === 'miles' ? $milesStatus : $pmoStatus);
 
@@ -128,7 +118,7 @@
 			</div>
 		</div>
 	</header>
-	<div class="ws-area" bind:this={wsAreaEl}>
+	<div class="ws-area">
 		<!-- BACK WALL -->
 		<div class="back-wall">
 			<div class="wall-trim-top"></div>
