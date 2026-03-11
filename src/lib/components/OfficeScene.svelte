@@ -1390,18 +1390,18 @@
 		clip-path: polygon(100% 0, 0 100%, 100% 100%);
 	}
 
-	/* Same-row: horizontal arc */
+	/* Same-row: high arc that clears characters */
 	@keyframes flyRight {
 		0% { left: 0%; transform: translateY(0) rotate(-10deg) scale(0.8); opacity: 0; }
 		8% { opacity: 1; }
-		50% { left: 50%; transform: translateY(-50px) rotate(180deg) scale(1.1); opacity: 1; }
+		50% { left: 50%; transform: translateY(-120px) rotate(180deg) scale(1.1); opacity: 1; }
 		92% { opacity: 0.7; }
 		100% { left: 100%; transform: translateY(0) rotate(360deg) scale(0.8); opacity: 0; }
 	}
 	@keyframes flyLeft {
 		0% { left: 100%; transform: translateY(0) rotate(10deg) scale(0.8); opacity: 0; }
 		8% { opacity: 1; }
-		50% { left: 50%; transform: translateY(-50px) rotate(-180deg) scale(1.1); opacity: 1; }
+		50% { left: 50%; transform: translateY(-120px) rotate(-180deg) scale(1.1); opacity: 1; }
 		92% { opacity: 0.7; }
 		100% { left: 0%; transform: translateY(0) rotate(-360deg) scale(0.8); opacity: 0; }
 	}
