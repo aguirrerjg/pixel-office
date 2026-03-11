@@ -118,17 +118,17 @@
 	/* Combined status+activity pill for active states */
 	.ws-status-active {
 		font-family: 'Fira Code', monospace;
-		font-size: 10px;
+		font-size: 9px;
 		font-weight: 600;
-		padding: 3px 10px;
+		padding: 4px 8px;
 		border-radius: 5px;
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 		gap: 5px;
-		max-width: 200px;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		max-width: 150px;
+		white-space: normal;
+		line-height: 1.3;
+		text-align: left;
 	}
 	.ws-status-active.working {
 		background: rgba(0, 30, 40, 0.95);
