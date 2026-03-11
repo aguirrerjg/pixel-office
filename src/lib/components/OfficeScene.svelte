@@ -27,10 +27,10 @@
 
 	function getRowStyle(rowIdx: number, totalRows: number) {
 		// paperTop = vertical % where papers fly (aligned with agent monitor level)
-		if (totalRows === 1) return { bottom: 28, scale: 1.45, spread: { start: 22, range: 56 }, paperTop: 58 };
+		if (totalRows === 1) return { bottom: 22, scale: 1.45, spread: { start: 22, range: 56 }, paperTop: 62 };
 		// 2 rows: back smaller/higher, front bigger/lower
-		if (rowIdx === 0) return { bottom: 44, scale: 1.0, spread: { start: 22, range: 56 }, paperTop: 44 };
-		return { bottom: 14, scale: 1.3, spread: { start: 22, range: 56 }, paperTop: 72 };
+		if (rowIdx === 0) return { bottom: 34, scale: 1.0, spread: { start: 22, range: 56 }, paperTop: 52 };
+		return { bottom: 8, scale: 1.3, spread: { start: 22, range: 56 }, paperTop: 78 };
 	}
 
 	// Agent position map (id → left %)
