@@ -1183,7 +1183,8 @@
 		display: none !important;
 	}
 	.workstation-wrap :global(.ws-label-bottom) {
-		bottom: -42px;
+		bottom: auto;
+		top: calc(100% + 4px);
 		z-index: 20;
 	}
 
