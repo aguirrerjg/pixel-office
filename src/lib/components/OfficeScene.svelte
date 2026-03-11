@@ -270,11 +270,10 @@
 			<div class="foliage f4"></div>
 		</div>
 
-		<!-- DESK ROWS: each row is a desk + agents unit -->
+		<!-- DESK ROWS: each agent has their own individual workstation -->
 		{#each rows as row, rowIdx}
 			{@const rowStyle = getRowStyle(rowIdx, rows.length)}
 			<div class="desk-area" style="bottom:{rowStyle.bottom}%">
-				<!-- AGENTS (behind desk) -->
 				{#each row as agent, idx}
 					{@const pct = row.length === 1 ? 50 : (rowStyle.spread.start + idx * (rowStyle.spread.range / (row.length - 1)))}
 					{@const agentState = getAgentState(agent.id)}
@@ -282,6 +281,13 @@
 						class="workstation-wrap {agentState}"
 						style="left:{pct}%;--agent-color:{agent.color};--agent-scale:{rowStyle.scale}"
 					>
+						<!-- Individual desk -->
+						<div class="ind-desk">
+							<div class="ind-desk-top"></div>
+							<div class="ind-desk-front"></div>
+							<div class="ind-desk-leg idl-l"></div>
+							<div class="ind-desk-leg idl-r"></div>
+						</div>
 						<!-- Monitor -->
 						<div class="monitor">
 							<div class="monitor-screen">
@@ -302,30 +308,12 @@
 						<div class="work-pulse"></div>
 						<!-- Character -->
 						<PixelCharacter {agent} agentState={agentState} activity={getAgentActivity(agent.id)} />
-					</div>
-				{/each}
-
-				<!-- DESK (in front of agents) -->
-				<div class="desk-surface"></div>
-				<div class="desk-front-panel">
-					{#each row as agent, idx}
-						{@const pillPct = row.length === 1 ? 50 : (rowStyle.spread.start + idx * (rowStyle.spread.range / (row.length - 1)))}
-						<div class="name-pill" style="left:{pillPct}%;--pill-color:{agent.color}">
+						<!-- Name pill (individual) -->
+						<div class="name-pill" style="--pill-color:{agent.color}">
 							{agent.name}
 						</div>
-					{/each}
-				</div>
-				<div class="desk-leg dl"></div>
-				<div class="desk-leg dr"></div>
-				{#if rowIdx === rows.length - 1}
-					<!-- Coffee mug on front desk -->
-					<div class="coffee-mug">
-						<div class="mug-body"></div>
-						<div class="mug-handle"></div>
-						<div class="mug-steam s1"></div>
-						<div class="mug-steam s2"></div>
 					</div>
-				{/if}
+				{/each}
 			</div>
 		{/each}
 
@@ -969,17 +957,52 @@
 		height: 120px;
 		z-index: 5;
 	}
-	.desk-surface {
+	/* Individual desk per agent */
+	.ind-desk {
 		position: absolute;
-		bottom: 40px;
-		left: 2%;
-		right: 2%;
-		height: 10px;
-		background: linear-gradient(180deg, rgba(240,228,204,0.3) 0%, rgba(232,216,184,0.2) 100%);
-		border-radius: 50% 50% 0 0 / 80% 80% 0 0;
-		border: 1px solid rgba(180, 160, 120, 0.15);
+		bottom: -8px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 90px;
+		height: 48px;
+		z-index: 8;
+	}
+	.ind-desk-top {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 6px;
+		background: linear-gradient(180deg, #4a5568 0%, #3d4a5c 100%);
+		border-radius: 3px 3px 0 0;
+		border: 1px solid rgba(100, 120, 150, 0.25);
 		border-bottom: none;
-		z-index: 10;
+		box-shadow: 0 -2px 8px rgba(0,0,0,0.15);
+	}
+	.ind-desk-front {
+		position: absolute;
+		top: 6px;
+		left: 2px;
+		right: 2px;
+		height: 30px;
+		background: linear-gradient(180deg, #2d3748 0%, #1a2332 100%);
+		border-radius: 0 0 4px 4px;
+		border: 1px solid rgba(80, 100, 130, 0.2);
+		border-top: none;
+	}
+	.ind-desk-leg {
+		position: absolute;
+		bottom: 0;
+		width: 4px;
+		height: 12px;
+		background: #1a2332;
+		border-radius: 0 0 2px 2px;
+	}
+	.ind-desk-leg.idl-l { left: 8px; }
+	.ind-desk-leg.idl-r { right: 8px; }
+
+	.desk-surface {
+		display: none;
 	}
 	/* Subtle desk edge highlight */
 	.desk-surface::before {
@@ -993,15 +1016,7 @@
 		border-radius: 50%;
 	}
 	.desk-front-panel {
-		position: absolute;
-		bottom: 4px;
-		left: 0;
-		right: 0;
-		height: 36px;
-		background: linear-gradient(180deg, rgba(60,50,40,0.5) 0%, rgba(40,35,25,0.6) 100%);
-		border-radius: 0 0 50% 50% / 0 0 30% 30%;
-		border: 1px solid rgba(100, 80, 50, 0.15);
-		z-index: 10;
+		display: none;
 	}
 	/* Wood grain on front panel */
 	.desk-front-panel::before {
@@ -1021,8 +1036,9 @@
 	/* ── Name pills on desk front ── */
 	.name-pill {
 		position: absolute;
-		top: 50%;
-		transform: translate(-50%, -50%);
+		bottom: -22px;
+		left: 50%;
+		transform: translateX(-50%);
 		background: color-mix(in srgb, var(--pill-color, #4caf50) 70%, #1a1a2e 30%);
 		color: #fff;
 		font-family: 'Chakra Petch', monospace;
@@ -1033,7 +1049,7 @@
 		border-radius: 10px;
 		white-space: nowrap;
 		box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-		z-index: 3;
+		z-index: 12;
 		text-shadow: 0 1px 1px rgba(0,0,0,0.3);
 	}
 
