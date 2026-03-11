@@ -973,7 +973,7 @@
 		left: 0;
 		right: 0;
 		height: 6px;
-		background: linear-gradient(180deg, #4a5568 0%, #3d4a5c 100%);
+		background: linear-gradient(180deg, #c8cdd5 0%, #b8bfc9 100%);
 		border-radius: 3px 3px 0 0;
 		border: 1px solid rgba(100, 120, 150, 0.25);
 		border-bottom: none;
@@ -985,9 +985,9 @@
 		left: 2px;
 		right: 2px;
 		height: 30px;
-		background: linear-gradient(180deg, #2d3748 0%, #1a2332 100%);
+		background: linear-gradient(180deg, #b0b8c4 0%, #9aa4b0 100%);
 		border-radius: 0 0 4px 4px;
-		border: 1px solid rgba(80, 100, 130, 0.2);
+		border: 1px solid rgba(180, 190, 200, 0.4);
 		border-top: none;
 	}
 	.ind-desk-leg {
@@ -995,7 +995,7 @@
 		bottom: 0;
 		width: 4px;
 		height: 12px;
-		background: #1a2332;
+		background: #9aa4b0;
 		border-radius: 0 0 2px 2px;
 	}
 	.ind-desk-leg.idl-l { left: 8px; }
@@ -1216,8 +1216,8 @@
 	.monitor-screen {
 		width: 40px;
 		height: 28px;
-		background: #0a0f1e;
-		border: 3px solid #2a2a32;
+		background: #1a1f2e;
+		border: 3px solid #c0c5cc;
 		border-radius: 3px 3px 0 0;
 		overflow: hidden;
 		position: relative;
@@ -1226,13 +1226,13 @@
 	.monitor-stand {
 		width: 10px;
 		height: 7px;
-		background: #3a3a44;
+		background: #b0b5bc;
 		margin: 0 auto;
 	}
 	.monitor-base {
 		width: 22px;
 		height: 3px;
-		background: #4a4a56;
+		background: #c0c5cc;
 		border-radius: 1px;
 		margin: 0 auto;
 	}
