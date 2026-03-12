@@ -30,7 +30,7 @@
 		if (totalRows === 1) return { bottom: 22, scale: 1.45, spread: { start: 22, range: 56 }, paperTop: 62 };
 		// 2 rows: back smaller/higher, front bigger/lower
 		if (rowIdx === 0) return { bottom: 34, scale: 1.0, spread: { start: 22, range: 56 }, paperTop: 52 };
-		return { bottom: 8, scale: 1.3, spread: { start: 22, range: 56 }, paperTop: 78 };
+		return { bottom: 14, scale: 1.3, spread: { start: 22, range: 56 }, paperTop: 74 };
 	}
 
 	// Agent position map (id → left %)
@@ -277,9 +277,16 @@
 				{#each row as agent, idx}
 					{@const pct = row.length === 1 ? 50 : (rowStyle.spread.start + idx * (rowStyle.spread.range / (row.length - 1)))}
 					{@const agentState = getAgentState(agent.id)}
+					{@const bubblePos = row.length >= 3 ? (idx === 0 ? 'right' : idx === row.length - 1 ? 'left' : 'center') : 'right'}
+					{@const activityText = getAgentActivity(agent.id) ?? ''}
+					{@const textLen = activityText.length}
+					{@const bubbleBase = textLen < 20 ? 68 : textLen < 40 ? 65 : 62}
+					{@const bubbleLift = bubblePos === 'center' ? (textLen < 25 ? 12 : 18) : 0}
 					<div
 						class="workstation-wrap {agentState}"
-						style="left:{pct}%;--agent-color:{agent.color};--agent-scale:{rowStyle.scale}"
+						class:bubble-left={bubblePos === 'left'}
+						class:bubble-center={bubblePos === 'center'}
+						style="left:{pct}%;--agent-color:{agent.color};--agent-scale:{rowStyle.scale};--bubble-bottom:{bubbleBase + bubbleLift}px"
 					>
 						<!-- Individual desk -->
 						<div class="ind-desk">
@@ -308,8 +315,14 @@
 						<div class="work-pulse"></div>
 						<!-- Character -->
 						<PixelCharacter {agent} agentState={agentState} activity={getAgentActivity(agent.id)} />
-						<!-- Name pill (individual) -->
-						<div class="name-pill" style="--pill-color:{agent.color}">
+						<!-- Speech bubble (above head, only when active) -->
+						{#if getAgentActivity(agent.id) && (agentState === 'working' || agentState === 'thinking')}
+							<div class="speech-bubble {agentState}" style="--bubble-accent:{agent.color}">
+								<span class="bubble-text">{getAgentActivity(agent.id)}</span>
+							</div>
+						{/if}
+						<!-- Name pill (always below desk) -->
+						<div class="agent-name-pill" style="--pill-color:{agent.color}">
 							{agent.name}
 						</div>
 					</div>
@@ -1033,25 +1046,7 @@
 	.desk-leg.dl { left: 12%; }
 	.desk-leg.dr { right: 12%; }
 
-	/* ── Name pills on desk front ── */
-	.name-pill {
-		position: absolute;
-		bottom: -22px;
-		left: 50%;
-		transform: translateX(-50%);
-		background: color-mix(in srgb, var(--pill-color, #4caf50) 70%, #1a1a2e 30%);
-		color: #fff;
-		font-family: 'Chakra Petch', monospace;
-		font-size: 10px;
-		font-weight: 700;
-		letter-spacing: 0.5px;
-		padding: 2px 10px;
-		border-radius: 10px;
-		white-space: nowrap;
-		box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-		z-index: 12;
-		text-shadow: 0 1px 1px rgba(0,0,0,0.3);
-	}
+	/* ── Name pills (legacy, replaced by agent-card) ── */
 
 	/* ── Coffee mug ── */
 	.coffee-mug {
@@ -1178,12 +1173,158 @@
 		transform: translateX(-50%) scale(var(--agent-scale, 1.25));
 		transform-origin: bottom center;
 	}
-	/* Hide default PixelCharacter labels — names are on desk pills, status below desk */
+	/* Hide default PixelCharacter labels — replaced by unified agent-card */
 	.workstation-wrap :global(.ws-label-top) {
 		display: none !important;
 	}
 	.workstation-wrap :global(.ws-label-bottom) {
-		bottom: -42px;
+		display: none !important;
+	}
+
+	/* ── Speech bubble (comic style, above character head) ── */
+	.speech-bubble {
+		position: absolute;
+		bottom: var(--bubble-bottom, 65px);
+		left: 55%;
+		width: max-content;
+		max-width: 110px;
+		min-width: 50px;
+		padding: 4px 7px;
+		border-radius: 10px;
+		font-family: 'Fira Code', monospace;
+		font-size: 9px;
+		font-weight: 600;
+		line-height: 1.3;
+		text-align: left;
+		white-space: normal;
+		z-index: 25;
+		animation: bubblePop 0.3s ease-out;
+	}
+	/* Tail: angled toward character mouth — default for right-side bubbles (left agents) */
+	.speech-bubble::after {
+		content: '';
+		position: absolute;
+		bottom: -10px;
+		left: 2px;
+		width: 0;
+		height: 0;
+		border-left: 3px solid transparent;
+		border-right: 12px solid transparent;
+		border-top: 11px solid transparent;
+	}
+	/* Working: white bubble with agent-colored border */
+	.speech-bubble.working {
+		background: #fff;
+		color: #1a1a2e;
+		border: 2px solid var(--bubble-accent, #4caf50);
+		box-shadow: 2px 3px 8px rgba(0,0,0,0.2);
+	}
+	/* Working tail: border color */
+	.speech-bubble.working::after {
+		border-top-color: var(--bubble-accent, #4caf50);
+	}
+	/* Working tail: inner white fill */
+	.speech-bubble.working::before {
+		content: '';
+		position: absolute;
+		bottom: -7px;
+		left: 5px;
+		width: 0;
+		height: 0;
+		border-left: 2px solid transparent;
+		border-right: 9px solid transparent;
+		border-top: 8px solid #fff;
+		z-index: 1;
+	}
+	/* Thinking: light purple bubble */
+	.speech-bubble.thinking {
+		background: #f3eeff;
+		color: #2a1a4e;
+		border: 2px solid #b388ff;
+		box-shadow: 2px 3px 8px rgba(0,0,0,0.15);
+	}
+	.speech-bubble.thinking::after {
+		border-top-color: #b388ff;
+	}
+	.speech-bubble.thinking::before {
+		content: '';
+		position: absolute;
+		bottom: -7px;
+		left: 5px;
+		width: 0;
+		height: 0;
+		border-left: 2px solid transparent;
+		border-right: 9px solid transparent;
+		border-top: 8px solid #f3eeff;
+		z-index: 1;
+	}
+	.bubble-text {
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		overflow-wrap: break-word;
+		word-break: normal;
+	}
+	@keyframes bubblePop {
+		0% { opacity: 0; transform: translateX(-50%) scale(0.7); }
+		70% { transform: translateX(-50%) scale(1.05); }
+		100% { opacity: 1; transform: translateX(-50%) scale(1); }
+	}
+
+	/* Center agent: bubble straight up, tail centered pointing down */
+	.bubble-center .speech-bubble {
+		left: 50%;
+		transform: translateX(-50%);
+	}
+	.bubble-center .speech-bubble::after {
+		left: 50%;
+		transform: translateX(-50%);
+		border-left: 6px solid transparent;
+		border-right: 6px solid transparent;
+	}
+	.bubble-center .speech-bubble.working::before,
+	.bubble-center .speech-bubble.thinking::before {
+		left: 50%;
+		transform: translateX(-50%);
+		border-left: 4px solid transparent;
+		border-right: 4px solid transparent;
+	}
+	/* Right agent: bubble to upper-left, tail at bottom-right pointing down-right toward mouth */
+	.bubble-left .speech-bubble {
+		left: auto;
+		right: 55%;
+	}
+	.bubble-left .speech-bubble::after {
+		left: auto;
+		right: 2px;
+		border-left: 12px solid transparent;
+		border-right: 3px solid transparent;
+	}
+	.bubble-left .speech-bubble.working::before,
+	.bubble-left .speech-bubble.thinking::before {
+		left: auto;
+		right: 5px;
+		border-left: 9px solid transparent;
+		border-right: 2px solid transparent;
+	}
+
+	/* ── Name pill (always below desk) ── */
+	.agent-name-pill {
+		position: absolute;
+		top: calc(100% + 2px);
+		left: 50%;
+		transform: translateX(-50%);
+		font-family: 'Chakra Petch', monospace;
+		font-size: 10px;
+		font-weight: 700;
+		letter-spacing: 0.5px;
+		color: #fff;
+		background: color-mix(in srgb, var(--pill-color, #4caf50) 75%, #000 25%);
+		padding: 2px 10px;
+		border-radius: 4px;
+		white-space: nowrap;
+		text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 		z-index: 20;
 	}
 
