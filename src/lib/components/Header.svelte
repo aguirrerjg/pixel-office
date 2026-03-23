@@ -16,7 +16,7 @@
 
 <header class="header">
 	<div class="brand">
-		<h1>Pixel Office</h1>
+		<h1>Agent Squad</h1>
 		<span class="tag">CONTROL CENTER</span>
 	</div>
 	<div class="header-right">
